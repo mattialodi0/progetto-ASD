@@ -1,13 +1,17 @@
+//giocatore virtuale pseudo random
 
 package mnkgame;
 
 import java.util.Random;
 
-public class martPlayer  implements MNKPlayer {
+public class SmartPlayer  implements MNKPlayer {
 	private Random rand;
+    private int M;
+    private int N;
+    private int K;
 	private int TIMEOUT;
 
-	public RandomPlayer() {
+	public SmartPlayer() {
 	}
 
 	public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
@@ -15,6 +19,9 @@ public class martPlayer  implements MNKPlayer {
 		rand    = new Random(System.currentTimeMillis()); 
 		// Save the timeout for testing purposes
 		TIMEOUT = timeout_in_secs;
+        this.M = M;
+        this.N = N;
+        this.K = K;
 		
 		// Uncomment to chech the initialization timeout
 		/* 
@@ -28,11 +35,19 @@ public class martPlayer  implements MNKPlayer {
 
 	public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
         
-        //se è la prima mossa mette il simbolo al centro
-
-        //se è la seconda mossa mette il simbolo accanto a quello dell'avversario
-
-        //se resta una sola mossa la fa
+        if(MC.length == 0) {
+            //se è la prima mossa mette il simbolo al centro
+            int m = M/2;
+            int n = N/2;
+            MNKCell c = new MNKCell(m, n);
+            return c;
+        }
+        else if(MC.length == 1) {
+            //se è la seconda mossa mette il simbolo accanto a quello dell'avversario
+        }
+        else if(FC.length == 1) {
+            return FC[0];
+        }
 
         //se può vincere lo fa
 
@@ -44,7 +59,6 @@ public class martPlayer  implements MNKPlayer {
         */
 
         
-
 
 
 		// Uncomment to chech the move timeout
