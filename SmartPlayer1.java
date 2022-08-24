@@ -48,26 +48,6 @@ public class SmartPlayer1  implements MNKPlayer {
 		if(FC.length == 1) {
             return FC[0];
         }
-        else if(MC.length == 1) {
-            //se è la seconda mossa mette il simbolo accanto a quello dell'avversario
-			int m; int n;
-			MNKCell c = MC[0];
-			if(c.i < M-1) {
-				m = c.i+1;
-			}
-			else {
-				m = c.i-1;
-			}
-			if(c.j < N-1) {
-				n = c.j+1;
-			}
-			else {
-				n = c.j-1;
-			}
-			MNKCell f = new MNKCell(m, n);
-			B.markCell(f.i,f.j);
-            return f;
-        }
 
 		//se può vincere lo fa
 		for(MNKCell d : FC) {
@@ -80,11 +60,31 @@ public class SmartPlayer1  implements MNKPlayer {
 
 
         //se l'altro giocatore può vincere alla prossima mossa lo ferma
-		int pos = rand.nextInt(FC.length); 
-		MNKCell c = FC[pos]; // mossa a caso
+		int pos1 = rand.nextInt(FC.length); 
+		int pos2 = rand.nextInt(FC.length); 
+		while(pos1 == pos2) {
+			pos2 = rand.nextInt(FC.length); 
+		}
+		MNKCell c = FC[pos1]; // mossa a caso
 		B.markCell(c.i,c.j); 
 		for(int k = 0; k < FC.length; k++) {    
-			if(k != pos) {     
+			if(k != pos1) {     
+			    MNKCell d = FC[k];
+			    if(B.markCell(d.i,d.j) == yourWin) {
+			    	B.unmarkCell();        
+			    	B.unmarkCell();	       
+			    	B.markCell(d.i,d.j);   
+			    	return d;							 
+			    } else {
+			    	B.unmarkCell();	       
+			    }	
+			}
+		}
+		B.unmarkCell();	
+		MNKCell e = FC[pos2]; 
+		B.markCell(e.i,e.j); 
+		for(int k = 0; k < FC.length; k++) {    
+			if(k != pos2) {     
 			    MNKCell d = FC[k];
 			    if(B.markCell(d.i,d.j) == yourWin) {
 			    	B.unmarkCell();        
@@ -113,39 +113,39 @@ public class SmartPlayer1  implements MNKPlayer {
 		if(c.i < M-1 && c.j < N-1) {
 			m = c.i+1; n = c.j+1;
 			//controlla che non sia marcata
+			MNKCell f = new MNKCell(m, n);
 			for(int k=0; k < FC.length; k++) {
 				if(m == FC[k].i && n == FC[k].j) {
-					MNKCell f = new MNKCell(m, n);
         			return f;
 				}
 			}
 		}
-		if(c.i > 1 && c.j > 1) {
+		if(c.i > 0 && c.j > 0) {
 			m = c.i-1; n = c.j-1;
 			//controlla che non sia marcata
+			MNKCell f = new MNKCell(m, n);
 			for(int k=0; k < FC.length; k++) {
 				if(m == FC[k].i && n == FC[k].j) {
-					MNKCell f = new MNKCell(m, n);
         			return f;
 				}
 			}
 		}
-		if(c.i < M-1 && c.j > 1) {
+		if(c.i < M-1 && c.j > 0) {
 			m = c.i+1; n = c.j-1;
 			//controlla che non sia marcata
+			MNKCell f = new MNKCell(m, n);
 			for(int k=0; k < FC.length; k++) {
 				if(m == FC[k].i && n == FC[k].j) {
-					MNKCell f = new MNKCell(m, n);
         			return f;
 				}
 			}
 		}
-		if(c.i > 1 && c.j < N-1) {
+		if(c.i > 0 && c.j < N-1) {
 			m = c.i-1; n = c.j+1;
 			//controlla che non sia marcata
+			MNKCell f = new MNKCell(m, n);
 			for(int k=0; k < FC.length; k++) {
 				if(m == FC[k].i && n == FC[k].j) {
-					MNKCell f = new MNKCell(m, n);
         			return f;
 				}
 			}
@@ -155,29 +155,29 @@ public class SmartPlayer1  implements MNKPlayer {
 		if(c.i < M-1) {
 			m = c.i+1; n = c.j;
 			//controlla che non sia marcata
+			MNKCell f = new MNKCell(m, n);
 			for(int k=0; k < FC.length; k++) {
 				if(m == FC[k].i && n == FC[k].j) {
-					MNKCell f = new MNKCell(m, n);
         			return f;
 				}
 			}
 		}
-		if(c.i > 1) {
+		if(c.i > 0) {
 			m = c.i-1; n = c.j;
 			//controlla che non sia marcata
+			MNKCell f = new MNKCell(m, n);
 			for(int k=0; k < FC.length; k++) {
 				if(m == FC[k].i && n == FC[k].j) {
-					MNKCell f = new MNKCell(m, n);
         			return f;
 				}
 			}
 		}
-		if(c.j > 1) {
+		if(c.j > 0) {
 			m = c.i; n = c.j-1;
 			//controlla che non sia marcata
+			MNKCell f = new MNKCell(m, n);
 			for(int k=0; k < FC.length; k++) {
 				if(m == FC[k].i && n == FC[k].j) {
-					MNKCell f = new MNKCell(m, n);
         			return f;
 				}
 			}
@@ -185,14 +185,16 @@ public class SmartPlayer1  implements MNKPlayer {
 		if(c.j < N-1) {
 			m = c.i; n = c.j+1;
 			//controlla che non sia marcata
+			MNKCell f = new MNKCell(m, n);
 			for(int k=0; k < FC.length; k++) {
 				if(m == FC[k].i && n == FC[k].j) {
-					MNKCell f = new MNKCell(m, n);
         			return f;
 				}
 			}
 		}
 
-		return FC[FC.length-1];		
+		return FC[0];		
 	}
+
 }
+
