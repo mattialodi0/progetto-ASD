@@ -44,7 +44,7 @@ public class ObserverPlayer  implements MNKPlayer {
             return c;
         }
 
-        evaluation(B, MC);
+        evaluation(B);
 
 		if(FC.length == 1) {
             return FC[0];
@@ -104,22 +104,82 @@ public class ObserverPlayer  implements MNKPlayer {
 		return "5m4rt";
 	}
 
-    private void evaluation(MNKBoard B, MNKCell[] MC) { //verifica solo la sequenza più lunga non se è stata già bloccata o no (futura implementazione)
+    private void evaluation(MNKBoard B) {     //verifica solo la sequenza più lunga non se è stata già bloccata o no (futura implementazione)
         int max_p1 = 0;
         int max_p2 = 0;
 
-        //implementata come visita modificata di un grafo non orientato
-        for(MNKCell d : MC) {
-            if(d.state == MNKGameState.P1) 
-                max_p1 = ;  //visita che ritorna il massimo numero di simbloli in fila
-            else if(d.state == MNKGameState.P1)
-                max_p2 = ;  //visita che ritorna il massimo numero di simbloli in fila
+        max_p1 = evaluate(B.B, MNKCellState.P1);
+        max_p2 = evaluate(B.B, MNKCellState.P2);
+
+        if(max_p1 > max_p2) { System.out.println("p1 is winning"); }
+        else if(max_p1 < max_p2) { System.out.println("p2 is winning"); }
+        else { System.out.println("draw"); }
+
+    }
+    
+    private int evaluate(MNKCellState[][] B, MNKCellState state) {
+        int u_max = 0;
+        int u = 0;
+
+        //controllo delle righe
+        for(int k=0; k < N; k++) {
+            for(int h=0; h < M; h++) {
+                if(B[h][k] == state) {
+                    u++;
+                }
+                else {
+                    u_max = (u_max > u ? u_max : u);
+                    u = 0;
+                }
+            }
+            u = 0;
         }
 
-        if(max_p1 > max_p2) System.out.println("p1 is winning");
-        else if(max_p1 > max_p2) System.out.println("p2 is winning");
-        else System.out.println("draw");
+        //controllo delle colonne
+        for(int k=0; k < M; k++) {
+            for(int h=0; h < N; h++) {
+                if(B[k][h] == state) {
+                    u++;
+                }
+                else {
+                    u_max = (u_max > u ? u_max : u);
+                    u = 0;
+                }
+            }
+            u = 0;
+        }
 
-        System.out.println("....");
+        //controllo delle diagonali 
+        for(int k=0; k < M; k++) {
+            for(int h=0; h < (M < N ? M : N); h++) {
+                if(k+h < N) {
+                    if(B[k+h][h] == state) {
+                        u++;
+                    }
+                    else {
+                        u_max = (u_max > u ? u_max : u);
+                        u = 0;
+                    }
+                }
+            }
+            u = 0;
+        }
+        for(int k=1; k < N; k++) {
+            for(int h=0; h < (M < N ? M : N); h++) {
+                if(k+h < N-k+1) {
+                    if(B[h][h+k] == state) {
+                        u++;
+                    }
+                    else {
+                        u_max = (u_max > u ? u_max : u);
+                        u = 0;
+                    }
+                }
+            }
+            u = 0;
+        }
+        //controllo delle antidiagonali
+
+        return u_max;
     }
 }
