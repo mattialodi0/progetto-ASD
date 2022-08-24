@@ -3,7 +3,7 @@ package mnkgame;
 
 import java.util.Random;
 
-public class SmartPlayer  implements MNKPlayer {
+public class SmartPlayer2  implements MNKPlayer {
 	private Random rand;
     private int M;
     private int N;
@@ -13,7 +13,7 @@ public class SmartPlayer  implements MNKPlayer {
 	private MNKGameState yourWin;
 	private int TIMEOUT;
 
-	public SmartPlayer() {
+	public SmartPlayer2() {
 	}
 
 
@@ -47,27 +47,7 @@ public class SmartPlayer  implements MNKPlayer {
 
 		if(FC.length == 1) {
             return FC[0];
-        }
-        else if(MC.length == 1) {
-            //se è la seconda mossa mette il simbolo accanto a quello dell'avversario
-			int m; int n;
-			MNKCell c = MC[0];
-			if(c.i < M-1) {
-				m = c.i+1;
-			}
-			else {
-				m = c.i-1;
-			}
-			if(c.j < N-1) {
-				n = c.j+1;
-			}
-			else {
-				n = c.j-1;
-			}
-			MNKCell f = new MNKCell(m, n);
-			B.markCell(f.i,f.j);
-            return f;
-        }
+		}
 
 		//se può vincere lo fa
 		for(MNKCell d : FC) {
@@ -118,7 +98,7 @@ public class SmartPlayer  implements MNKPlayer {
 		}
 		B.unmarkCell();	
 
-		MNKCell t = SelectCloseCell(MC[MC.length-1], FC);
+		MNKCell t = SelectCloseCell(B.B, MC[MC.length-1], FC);
 		B.markCell(t.i,t.j); 
 		return t;
 	}
@@ -127,94 +107,144 @@ public class SmartPlayer  implements MNKPlayer {
 		return "5m4rt";
 	}
 
-	private MNKCell SelectCloseCell(MNKCell c, MNKCell FC[]) {
+	private MNKCell SelectCloseCell(MNKCellState B[][], MNKCell c, MNKCell FC[]) {
 		int m; int n;
-		//cerca una cella valida		
-		if(c.i < M-1 && c.j < N-1) {
-			m = c.i+1; n = c.j+1;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < FC.length; k++) {
-				if(m == FC[k].i && n == FC[k].j) {
-        			return f;
-				}
+
+		//se può occupa una cella in modo da bloccare l'avversario
+		try{
+			if(B[c.i-1][c.j-1] == c.state) {
+				MNKCell f = new MNKCell(c.i+1, c.j+1);
+				if(B[c.i+1][c.j+1] == MNKCellState.FREE) 
+					return f;
+			}
+			else if(B[c.i][c.j-1] == c.state) {
+				MNKCell f = new MNKCell(c.i, c.j+1);
+				if(B[c.i][c.j+1] == MNKCellState.FREE) 
+					return f;
+			}
+			else if(B[c.i+1][c.j-1] == c.state) {
+				MNKCell f = new MNKCell(c.i-1, c.j+1);
+				if(B[c.i-1][c.j+1] == MNKCellState.FREE) 
+					return f;
+			}
+			else if(B[c.i+1][c.j] == c.state) {
+				MNKCell f = new MNKCell(c.i-1, c.j);
+				if(B[c.i-1][c.j] == MNKCellState.FREE) 
+					return f;
+			}
+			else if(B[c.i+1][c.j+1] == c.state) {
+				MNKCell f = new MNKCell(c.i-1, c.j-1);
+				if(B[c.i-1][c.j-1] == MNKCellState.FREE) 
+					return f;
+			}
+			else if(B[c.i][c.j+1] == c.state) {
+				MNKCell f = new MNKCell(c.i, c.j-1);
+				if(B[c.i][c.j-1] == MNKCellState.FREE) 
+					return f;
+			}
+			else if(B[c.i-1][c.j+1] == c.state) {
+				MNKCell f = new MNKCell(c.i+1, c.j-1);
+				if(B[c.i+1][c.j-1] == MNKCellState.FREE) 
+					return f;
+			}
+			else if(B[c.i-1][c.j] == c.state) {
+				MNKCell f = new MNKCell(c.i+1, c.j);
+				if(B[c.i+1][c.j] == MNKCellState.FREE) 
+					return f;
 			}
 		}
-		if(c.i > 0 && c.j > 0) {
-			m = c.i-1; n = c.j-1;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < FC.length; k++) {
-				if(m == FC[k].i && n == FC[k].j) {
-        			return f;
+		finally{
+			
+			//cerca una cella valida		
+			if(c.i < M-1 && c.j < N-1) {
+				m = c.i+1; n = c.j+1;
+				//controlla che non sia marcata
+				MNKCell f = new MNKCell(m, n);
+				for(int k=0; k < FC.length; k++) {
+					if(m == FC[k].i && n == FC[k].j) {
+						return f;
+					}
 				}
 			}
-		}
-		if(c.i < M-1 && c.j > 0) {
-			m = c.i+1; n = c.j-1;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < FC.length; k++) {
-				if(m == FC[k].i && n == FC[k].j) {
-        			return f;
+			if(c.i > 0 && c.j > 0) {
+				m = c.i-1; n = c.j-1;
+				//controlla che non sia marcata
+				MNKCell f = new MNKCell(m, n);
+				for(int k=0; k < FC.length; k++) {
+					if(m == FC[k].i && n == FC[k].j) {
+						return f;
+					}
 				}
 			}
-		}
-		if(c.i > 0 && c.j < N-1) {
-			m = c.i-1; n = c.j+1;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < FC.length; k++) {
-				if(m == FC[k].i && n == FC[k].j) {
-        			return f;
+			if(c.i < M-1 && c.j > 0) {
+				m = c.i+1; n = c.j-1;
+				//controlla che non sia marcata
+				MNKCell f = new MNKCell(m, n);
+				for(int k=0; k < FC.length; k++) {
+					if(m == FC[k].i && n == FC[k].j) {
+						return f;
+					}
 				}
 			}
+			if(c.i > 0 && c.j < N-1) {
+				m = c.i-1; n = c.j+1;
+				//controlla che non sia marcata
+				MNKCell f = new MNKCell(m, n);
+				for(int k=0; k < FC.length; k++) {
+					if(m == FC[k].i && n == FC[k].j) {
+						return f;
+					}
+				}
+			}
+
+
+			if(c.i < M-1) {
+				m = c.i+1; n = c.j;
+				//controlla che non sia marcata
+				MNKCell f = new MNKCell(m, n);
+				for(int k=0; k < FC.length; k++) {
+					if(m == FC[k].i && n == FC[k].j) {
+						return f;
+					}
+				}
+			}
+			if(c.i > 0) {
+				m = c.i-1; n = c.j;
+				//controlla che non sia marcata
+				MNKCell f = new MNKCell(m, n);
+				for(int k=0; k < FC.length; k++) {
+					if(m == FC[k].i && n == FC[k].j) {
+						return f;
+					}
+				}
+			}
+			if(c.j > 0) {
+				m = c.i; n = c.j-1;
+				//controlla che non sia marcata
+				MNKCell f = new MNKCell(m, n);
+				for(int k=0; k < FC.length; k++) {
+					if(m == FC[k].i && n == FC[k].j) {
+						return f;
+					}
+				}
+			}
+			if(c.j < N-1) {
+				m = c.i; n = c.j+1;
+				//controlla che non sia marcata
+				MNKCell f = new MNKCell(m, n);
+				for(int k=0; k < FC.length; k++) {
+					if(m == FC[k].i && n == FC[k].j) {
+						return f;
+					}
+				}
+			}
+
+			return FC[0];		
 		}
 
 
-		if(c.i < M-1) {
-			m = c.i+1; n = c.j;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < FC.length; k++) {
-				if(m == FC[k].i && n == FC[k].j) {
-        			return f;
-				}
-			}
-		}
-		if(c.i > 0) {
-			m = c.i-1; n = c.j;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < FC.length; k++) {
-				if(m == FC[k].i && n == FC[k].j) {
-        			return f;
-				}
-			}
-		}
-		if(c.j > 0) {
-			m = c.i; n = c.j-1;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < FC.length; k++) {
-				if(m == FC[k].i && n == FC[k].j) {
-        			return f;
-				}
-			}
-		}
-		if(c.j < N-1) {
-			m = c.i; n = c.j+1;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < FC.length; k++) {
-				if(m == FC[k].i && n == FC[k].j) {
-        			return f;
-				}
-			}
-		}
-
-		return FC[0];		
 	}
 
 
 }
+
