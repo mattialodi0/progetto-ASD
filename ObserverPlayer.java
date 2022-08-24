@@ -113,7 +113,7 @@ public class ObserverPlayer  implements MNKPlayer {
 
         if(max_p1 > max_p2) { System.out.println("p1 is winning"); }
         else if(max_p1 < max_p2) { System.out.println("p2 is winning"); }
-        else { System.out.println("draw"); }
+        else if(max_p1 == max_p2) { System.out.println("draw"); }
 
     }
     
@@ -121,7 +121,7 @@ public class ObserverPlayer  implements MNKPlayer {
         int u_max = 0;
         int u = 0;
 
-        //controllo delle righe
+        //controllo delle colonne
         for(int k=0; k < N; k++) {
             for(int h=0; h < M; h++) {
                 if(B[h][k] == state) {
@@ -135,7 +135,7 @@ public class ObserverPlayer  implements MNKPlayer {
             u = 0;
         }
 
-        //controllo delle colonne
+        //controllo delle righe
         for(int k=0; k < M; k++) {
             for(int h=0; h < N; h++) {
                 if(B[k][h] == state) {
@@ -148,7 +148,7 @@ public class ObserverPlayer  implements MNKPlayer {
             }
             u = 0;
         }
-
+/*
         //controllo delle diagonali 
         for(int k=0; k < M; k++) {
             for(int h=0; h < (M < N ? M : N); h++) {
@@ -177,7 +177,7 @@ public class ObserverPlayer  implements MNKPlayer {
                 }
             }
             u = 0;
-        }
+        }*/
         //controllo delle antidiagonali
 
         return u_max;
