@@ -49,26 +49,7 @@ public class ObserverPlayer  implements MNKPlayer {
 		if(FC.length == 1) {
             return FC[0];
         }
-        else if(MC.length == 1) {
-            //se è la seconda mossa mette il simbolo accanto a quello dell'avversario
-			int m; int n;
-			MNKCell c = MC[0];
-			if(c.i < M-1) {
-				m = c.i+1;
-			}
-			else {
-				m = c.i-1;
-			}
-			if(c.j < N-1) {
-				n = c.j+1;
-			}
-			else {
-				n = c.j-1;
-			}
-			MNKCell f = new MNKCell(m, n);
-			B.markCell(f.i,f.j);
-            return f;
-        }
+
 
 		//se può vincere lo fa
 		for(MNKCell d : FC) {
@@ -120,15 +101,16 @@ public class ObserverPlayer  implements MNKPlayer {
     private int evaluate(MNKCellState[][] B, MNKCellState state) {
         int u_max = 0;
         int u = 0;
-
+/*
         //controllo delle colonne
         for(int k=0; k < N; k++) {
             for(int h=0; h < M; h++) {
                 if(B[h][k] == state) {
                     u++;
+                    if(u_max < u) u_max = u;
                 }
                 else {
-                    u_max = (u_max > u ? u_max : u);
+                    //u_max = (u_max > u ? u_max : u);
                     u = 0;
                 }
             }
@@ -140,46 +122,111 @@ public class ObserverPlayer  implements MNKPlayer {
             for(int h=0; h < N; h++) {
                 if(B[k][h] == state) {
                     u++;
+                    if(u_max < u) u_max = u;
                 }
                 else {
-                    u_max = (u_max > u ? u_max : u);
+                    //u_max = (u_max > u ? u_max : u);
                     u = 0;
                 }
             }
             u = 0;
         }
-/*
-        //controllo delle diagonali 
-        for(int k=0; k < M; k++) {
-            for(int h=0; h < (M < N ? M : N); h++) {
-                if(k+h < N) {
-                    if(B[k+h][h] == state) {
-                        u++;
-                    }
-                    else {
-                        u_max = (u_max > u ? u_max : u);
-                        u = 0;
-                    }
-                }
-            }
-            u = 0;
-        }
-        for(int k=1; k < N; k++) {
-            for(int h=0; h < (M < N ? M : N); h++) {
-                if(k+h < N-k+1) {
+*/
+        //controllo delle diagonali
+        if(N == M) {
+            //caso quadrato
+            for(int k=0; k < N; k++) {
+                for(int h=0; h < M-k; h++) {
                     if(B[h][h+k] == state) {
                         u++;
+                        if(u_max < u) u_max = u;
                     }
-                    else {
-                        u_max = (u_max > u ? u_max : u);
-                        u = 0;
-                    }
+                    else u = 0;
                 }
+                u = 0;
             }
-            u = 0;
-        }*/
+            for(int k=1; k < M; k++) {
+                for(int h=0; h < N-k; h++) {
+                    if(B[h+k][h] == state) {
+                        u++;
+                        if(u_max < u) u_max = u;
+                    }
+                    else u = 0;
+                }
+                u = 0;
+            }
+        }
+        else if(N > M) {
+            //caso rettangolo orizzontale
+            for(int k=0; k < N-M; k++) {
+                for(int h=0; h < M; h++) {
+                    if(B[h][h+k] == state) {
+                        u++;
+                        if(u_max < u) u_max = u;
+                    }
+                    else u = 0;
+                }
+                u = 0;
+            }
+            for(int k=N-M; k < N; k++) {
+                for(int h=0; h < M-k; h++) {
+                    if(B[h][h+k] == state) {
+                        u++;
+                        if(u_max < u) u_max = u;
+                    }
+                    else u = 0;
+                }
+                u = 0;
+            }
+            for(int k=1; k < M; k++) {
+                for(int h=0; h < N-k; h++) {
+                    if(B[h+k][h] == state) {
+                        u++;
+                        if(u_max < u) u_max = u;
+                    }
+                    else u = 0;
+                }
+                u = 0;
+            }
+        }
+        else if(N < M) {
+            //caso rettangolo verticale
+            for(int k=0; k < N; k++) {
+                for(int h=0; h < M-k; h++) {
+                    if(B[h][h+k] == state) {
+                        u++;
+                        if(u_max < u) u_max = u;
+                    }
+                    else u = 0;
+                }
+                u = 0;
+            }
+            for(int k=1; k < M-N; k++) {
+                for(int h=0; h < N; h++) {
+                    if(B[h+k][h] == state) {
+                        u++;
+                        if(u_max < u) u_max = u;
+                    }
+                    else u = 0;
+                }
+                u = 0;
+            }
+            for(int k=M-N; k < M; k++) {
+                for(int h=0; h < N-k; h++) {
+                    if(B[h+k][h] == state) {
+                        u++;
+                        if(u_max < u) u_max = u;
+                    }
+                    else u = 0;
+                }
+                u = 0;
+            }
+        }
+        
+
         //controllo delle antidiagonali
 
+        
         return u_max;
     }
 }
