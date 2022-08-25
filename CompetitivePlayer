@@ -42,7 +42,8 @@ public class CompetitivePlayer  implements MNKPlayer {
             return FC[0];
 		}
 
-        return AlphaBeta(B, a, b, 2/*depth*/);
+        //da aggiungere iterative deepening
+        return AlphaBeta(B, a, b, 5/*depth*/);
 	}
 
 	public String playerName() {
@@ -206,6 +207,9 @@ public class CompetitivePlayer  implements MNKPlayer {
     }
 
     private MNKCell[] bestCells(MNKBoard B, MNKCellState state) {
-
+        //prende le celle dalla fine MC  (ordine temporale)
+        //vittoria 
+        //sconfitta
+        //fila di simboli > 
     }
 }
