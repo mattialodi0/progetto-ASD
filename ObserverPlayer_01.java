@@ -148,9 +148,9 @@ public class ObserverPlayer_01  implements MNKPlayer {
             u = 0;
         }
      // CONTROLLO DIAGONALE 
-     		for (int j = 0; j<M; j++) { // MATRICE TRIANGOLARE SUPERIORE
+     		for (int j = 0; j<N; j++) { // MATRICE TRIANGOLARE SUPERIORE
      			int l = 0;
-     			while (l<N && j+l<M) {
+     			while (l<M && j+l<N) {
      				if (l==0) {
      					u = 0;
      				}
@@ -164,9 +164,9 @@ public class ObserverPlayer_01  implements MNKPlayer {
      				l++;
      			}
      		}
-     		for (int i = 1; i<N; i++) { // MATRICE TRIANGOLARE INFERIORE
+     		for (int i = 1; i<M; i++) { // MATRICE TRIANGOLARE INFERIORE
     			int l=0;
-    			while (l<M && i+l<N) {
+    			while (l<N && i+l<M) {
     				if (l==0) {
     					u=0;
     				}
@@ -181,9 +181,9 @@ public class ObserverPlayer_01  implements MNKPlayer {
     			}
     		}
      	// CONTROLLO ANTI-DIAGONALE
-    		for (int j = M; j>0; j--) { // MATRICE TRIANGOLARE SUPERIORE (ANTI)
+    		for (int j = N; j>0; j--) { // MATRICE TRIANGOLARE SUPERIORE (ANTI)
     			int l = 0;
-    			while (l<N && j-l>0) {
+    			while (l<M && j-l>0) {
     				if (l==0) {
     					u=0;
     				}
@@ -197,13 +197,13 @@ public class ObserverPlayer_01  implements MNKPlayer {
     				l++;
     			}
     		}
-    		for (int i = 1; i<N; i++) { // MATRICE TRIANGOLARE INFERIORE (ANTI)
+    		for (int i = 1; i<M; i++) { // MATRICE TRIANGOLARE INFERIORE (ANTI)
     			int l = 0;
-    			while (l+i<N && M-l>0) {
+    			while (l+i<M && N-l>0) {
     				if (l==0) {
     					u = 0;
     				}
-    				if (B[i+l][M-l-1] == state) {
+    				if (B[i+l][N-l-1] == state) {
     					u++;
     					u_max = Math.max(u, u_max);
     				}
