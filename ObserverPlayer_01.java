@@ -110,8 +110,8 @@ public class ObserverPlayer_01  implements MNKPlayer {
         max_p1 = evaluate(B.B, MNKCellState.P1);
         max_p2 = evaluate(B.B, MNKCellState.P2);
 
-        if(max_p1 > max_p2) { System.out.println("p1 is winning"); }
-        else if(max_p1 < max_p2) { System.out.println("p2 is winning"); }
+        if(max_p1 > max_p2) { System.out.println("p1 is winning " + max_p1 + " a " + max_p2); }
+        else if(max_p1 < max_p2) { System.out.println("p2 is winning " + max_p2 + " a " + max_p1); }
         else if(max_p1 == max_p2) { System.out.println("draw"); }
 
     }
@@ -125,12 +125,9 @@ public class ObserverPlayer_01  implements MNKPlayer {
             for(int h=0; h < M; h++) {
                 if(B[h][k] == state) {
                     u++;
-		    if (u_max < u) u_max=u;	
+                    u_max = Math.max(u, u_max);
                 }
                 else {
-		    //if (u_max < u) u_max=u;                 
-
-		    //u_max = (u_max > u ? u_max : u);
                     u = 0;
                 }
             }
@@ -142,48 +139,81 @@ public class ObserverPlayer_01  implements MNKPlayer {
             for(int h=0; h < N; h++) {
                 if(B[k][h] == state) {
                     u++;
-		    if (u_max < u) u_max=u;
-                }
+                    u_max = Math.max(u, u_max);
+                    }
                 else {
-		    //if (u_max < u) u_max=u;
-
-                    //u_max = (u_max > u ? u_max : u);
                     u = 0;
                 }
             }
             u = 0;
         }
-/*
-        //controllo delle diagonali 
-        for(int k=0; k < M; k++) {
-            for(int h=0; h < (M < N ? M : N); h++) {
-                if(k+h < N) {
-                    if(B[k+h][h] == state) {
-                        u++;
-                    }
-                    else {
-                        u_max = (u_max > u ? u_max : u);
-                        u = 0;
-                    }
-                }
-            }
-            u = 0;
-        }
-        for(int k=1; k < N; k++) {
-            for(int h=0; h < (M < N ? M : N); h++) {
-                if(k+h < N-k+1) {
-                    if(B[h][h+k] == state) {
-                        u++;
-                    }
-                    else {
-                        u_max = (u_max > u ? u_max : u);
-                        u = 0;
-                    }
-                }
-            }
-            u = 0;
-        }*/
-        //controllo delle antidiagonali
+     // CONTROLLO DIAGONALE 
+     		for (int j = 0; j<M; j++) { // MATRICE TRIANGOLARE SUPERIORE
+     			int l = 0;
+     			while (l<N && j+l<M) {
+     				if (l==0) {
+     					u = 0;
+     				}
+     				if (B[l][j+l] == state) {
+     					u++;
+     					u_max = Math.max(u, u_max);
+     				}
+     				else {
+     					u=0;
+     				}
+     				l++;
+     			}
+     		}
+     		for (int i = 1; i<N; i++) { // MATRICE TRIANGOLARE INFERIORE
+    			int l=0;
+    			while (l<M && i+l<N) {
+    				if (l==0) {
+    					u=0;
+    				}
+    				if (B[i+l][l] == state) {
+    					u++;
+    					u_max = Math.max(u, u_max);
+    				}
+    				else {
+    					u=0;
+    				}
+    				l++;
+    			}
+    		}
+     	// CONTROLLO ANTI-DIAGONALE
+    		for (int j = M; j>0; j--) { // MATRICE TRIANGOLARE SUPERIORE (ANTI)
+    			int l = 0;
+    			while (l<N && j-l>0) {
+    				if (l==0) {
+    					u=0;
+    				}
+    				if (B[l][j-l-1] == state) {
+    					u++;
+    					u_max = Math.max(u, u_max);
+    				}
+    				else {
+    					u=0;
+    				}
+    				l++;
+    			}
+    		}
+    		for (int i = 1; i<N; i++) { // MATRICE TRIANGOLARE INFERIORE (ANTI)
+    			int l = 0;
+    			while (l+i<N && M-l>0) {
+    				if (l==0) {
+    					u = 0;
+    				}
+    				if (B[i+l][M-l-1] == state) {
+    					u++;
+    					u_max = Math.max(u, u_max);
+    				}
+    				else {
+    					u=0;
+    				}
+    				l++;
+    			}
+    		}
+        
 
         return u_max;
     }
