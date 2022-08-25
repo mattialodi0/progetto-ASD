@@ -101,7 +101,7 @@ public class ObserverPlayer  implements MNKPlayer {
     private int evaluate(MNKCellState[][] B, MNKCellState state) {
         int u_max = 0;
         int u = 0;
-/*
+
         //controllo delle colonne
         for(int k=0; k < N; k++) {
             for(int h=0; h < M; h++) {
@@ -131,7 +131,7 @@ public class ObserverPlayer  implements MNKPlayer {
             }
             u = 0;
         }
-*/
+
         //controllo delle diagonali
         if(N == M) {
             //caso quadrato
