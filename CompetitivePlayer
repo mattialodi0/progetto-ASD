@@ -43,20 +43,44 @@ public class CompetitivePlayer  implements MNKPlayer {
 		}
 
         //iterative deepening
-        int max_depth = 5;
+        final int max_depth = 5;
         int min_a = -1;
         int max_b = 1;
+        int index;
+        MNKCell BC[] = bestCells(B, (B.currentPlayer() == 0) ? MNKCellState.P1 : MNKCellState.P2);
+
         for(int i=0; i < max_depth; i++) {
-            return AlphaBeta(B, min_a, max_b, i);
+            for(int j=0; j < BC.length; j++) {      //il numero di iterazioni può essere ridotto per migliorare le prestazioni;
+                double results[];
+                results[j] = AlphaBeta(B, min_a, max_b, i);
+            }
+            if(B.currentPlayer() == 0) {            //*********************************************************
+                double max = -10;
+                for(int j=0; j < BC.length; j++) {
+                    if(results[j] > max) {
+                       max = results[j];
+                      index = j;
+                    }
+                }
+            }
+            else {
+                double min = 10;
+                for(int j=0; j < BC.length; j++) {
+                    if(results[j] < min) {
+                       min = results[j];
+                      index = j;
+                    }
+                }
+            }
         }
+        return BC[index];
 	}
 
 	public String playerName() {
 		return "C0mp3t1t1v3Pl4y3r";
 	}
 
-    //non va perché deve ritornare una cella invece di un double        *********************
-    private MNKCell AlphaBeta(MNKBoard B, int a, int b, int depth) {
+    private double AlphaBeta(MNKBoard B, int a, int b, int depth) {
         double eval;
 
         if(depth == 0 || FC.length == 0) {
@@ -108,9 +132,7 @@ public class CompetitivePlayer  implements MNKPlayer {
         //else if(max_p1 < max_p2) { System.out.println("p2 is winning " + max_p2 + " a " + max_p1); }
         //else if(max_p1 == max_p2) { System.out.println("draw"); }
 
-        max_p1 = 0-max_p1;  //rende negativo il valore di p1
-
-        return Math.atan2(max_p1, max_p2);  //funzione arcotangente             *******************
+        return (Math.atan(max_p2) - Math.atan(max_p1)) / (Math.PI / 2);  //funzione arcotangente
     }
     
     private int evaluate(MNKCellState[][] B, MNKCellState state) {
@@ -229,37 +251,73 @@ public class CompetitivePlayer  implements MNKPlayer {
             MNKCell c = MC[MC.length-i];
             int m = c.i; int n = c.j;
             if(B.B[m-1][n-1].state == MNKCellState.FREE && m-1 >= 0 && n-1 >= 0) {
-                BC[k] = MNKCell(m-1, n-1);
-                k++;
+                if(isntAlready(BC, k, m-1, n-1)){
+                    BC[k] = MNKCell(m-1, n-1);
+                    k++;
+                }
             }
             if(B.B[m][n-1].state == MNKCellState.FREE && n-1 >= 0) {
-                BC[k] = MNKCell(m, n-1);
-                k++;
+                if(isntAlready(BC, k, m, n-1)){
+                    BC[k] = MNKCell(m, n-1);
+                    k++;
+                }
             }
             if(B.B[m+1][n-1].state == MNKCellState.FREE && m+1 < M && n-1 >= 0) {
-                BC[k] = MNKCell(m+1, n-1);
-                k++;
+                if(isntAlready(BC, k, m+1, n-1)){
+                    BC[k] = MNKCell(m+1, n-1);
+                    k++;
+                }
             }
             if(B.B[m+1][n].state == MNKCellState.FREE && m+1 < M) {
-                BC[k] = MNKCell(m+1, n);
-                k++;
+                if(isntAlready(BC, k, m+1, n)){
+                    BC[k] = MNKCell(m+1, n);
+                    k++;
+                }
             }
             if(B.B[m+1][n+1].state == MNKCellState.FREE && m+1 < M && n+1 < N) {
-                BC[k] = MNKCell(m+1, n+1);
-                k++;
+                if(isntAlready(BC, k, m+1, n+1)){
+                    BC[k] = MNKCell(m+1, n+1);
+                    k++;
+                }
             }
             if(B.B[m][n+1].state == MNKCellState.FREE && n+1 < N) {
-                BC[k] = MNKCell(m, n+1);
-                k++;
+                if(isntAlready(BC, k, m, n+1)){
+                    BC[k] = MNKCell(m, n+1);
+                    k++;
+                }
             }
             if(B.B[m-1][n+1].state == MNKCellState.FREE && m-1 >= 0 && n+1 < N) {
-                BC[k] = MNKCell(m-1, n+1);
-                k++;
+                if(isntAlready(BC, k, m-1, n+1)){
+                    BC[k] = MNKCell(m-1, n+1);
+                    k++;
+                }
             }
             if(B.B[m-1][n].state == MNKCellState.FREE && m-1 >= 0) {
-                BC[k] = MNKCell(m-1, n);
-                k++;
+                if(isntAlready(BC, k, m-1, n)){
+                    BC[k] = MNKCell(m-1, n);
+                    k++;
+                }
             }
         }
+
+        //cerca una mossa per vincere
+        for(int i=0; i < k; i++) {
+            if(B.markCell(BC[i].i, BC[i].j) == myWin) {
+                MNKCell c = BC[i];
+                BC[i] = BC[0];
+                BC[0] = c;
+            }
+            else B.unmarkCell();
+        }
+
+        //cerca una mossa per non perdere
+    }
+
+    //verifica che una cella di coordinate m, n non sia già presente nell'array
+    private bool isntAlready(MNKCell A[], int k, int m, int n) {
+        for(int i=0; i < k; i++) {
+            if(A[i].i == m && A[i].j == n) return false;
+        }
+        return true;
     }
 }
