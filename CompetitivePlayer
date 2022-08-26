@@ -13,12 +13,12 @@ public class CompetitivePlayer  implements MNKPlayer {
 	public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
 
         rand    = new Random(System.currentTimeMillis()); 
-		this.M = M;
-        this.N = N;
-        this.K = K;
+		this.M  = M;
+        this.N  = N;
+        this.K  = K;
 		B       = new MNKBoard(M,N,K);
-		//myWin   = first ? MNKGameState.WINP1 : MNKGameState.WINP2; 
-		//yourWin = first ? MNKGameState.WINP2 : MNKGameState.WINP1;
+		myWin   = first ? MNKGameState.WINP1 : MNKGameState.WINP2; 
+		yourWin = first ? MNKGameState.WINP2 : MNKGameState.WINP1;
 		TIMEOUT = timeout_in_secs;
 
 	}
@@ -55,7 +55,7 @@ public class CompetitivePlayer  implements MNKPlayer {
 		return "C0mp3t1t1v3Pl4y3r";
 	}
 
-    //non va perché deve ritornare una cella invece di un double
+    //non va perché deve ritornare una cella invece di un double        *********************
     private MNKCell AlphaBeta(MNKBoard B, int a, int b, int depth) {
         double eval;
 
@@ -110,7 +110,7 @@ public class CompetitivePlayer  implements MNKPlayer {
 
         max_p1 = 0-max_p1;  //rende negativo il valore di p1
 
-        return Math.atan2(max_p1, max_p2);  //funzione arcotangente
+        return Math.atan2(max_p1, max_p2);  //funzione arcotangente             *******************
     }
     
     private int evaluate(MNKCellState[][] B, MNKCellState state) {
@@ -220,5 +220,46 @@ public class CompetitivePlayer  implements MNKPlayer {
         //vittoria 
         //sconfitta
         //fila di simboli > 
+
+        MNKCell BC[]; 
+        int k = 0;
+        
+        //ciclo per riempire BC prendendo le celle libere adiacenti alle ultime 5 mosse;
+        for(int i=1; i < 5; i++) {
+            MNKCell c = MC[MC.length-i];
+            int m = c.i; int n = c.j;
+            if(B.B[m-1][n-1].state == MNKCellState.FREE && m-1 >= 0 && n-1 >= 0) {
+                BC[k] = MNKCell(m-1, n-1);
+                k++;
+            }
+            if(B.B[m][n-1].state == MNKCellState.FREE && n-1 >= 0) {
+                BC[k] = MNKCell(m, n-1);
+                k++;
+            }
+            if(B.B[m+1][n-1].state == MNKCellState.FREE && m+1 < M && n-1 >= 0) {
+                BC[k] = MNKCell(m+1, n-1);
+                k++;
+            }
+            if(B.B[m+1][n].state == MNKCellState.FREE && m+1 < M) {
+                BC[k] = MNKCell(m+1, n);
+                k++;
+            }
+            if(B.B[m+1][n+1].state == MNKCellState.FREE && m+1 < M && n+1 < N) {
+                BC[k] = MNKCell(m+1, n+1);
+                k++;
+            }
+            if(B.B[m][n+1].state == MNKCellState.FREE && n+1 < N) {
+                BC[k] = MNKCell(m, n+1);
+                k++;
+            }
+            if(B.B[m-1][n+1].state == MNKCellState.FREE && m-1 >= 0 && n+1 < N) {
+                BC[k] = MNKCell(m-1, n+1);
+                k++;
+            }
+            if(B.B[m-1][n].state == MNKCellState.FREE && m-1 >= 0) {
+                BC[k] = MNKCell(m-1, n);
+                k++;
+            }
+        }
     }
 }
