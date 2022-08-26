@@ -5,6 +5,12 @@ import java.util.Random;
 
 public class CompetitivePlayer  implements MNKPlayer {
 	private Random rand;
+    private int M;
+    private int N;
+    private int K;
+	private MNKBoard B;
+	private MNKGameState myWin;
+	private MNKGameState yourWin;
 	private int TIMEOUT;
 
 	public CompetitivePlayer() {
@@ -44,14 +50,14 @@ public class CompetitivePlayer  implements MNKPlayer {
 
         //iterative deepening
         final int max_depth = 5;
-        int min_a = -1;
-        int max_b = 1;
-        int index;
+        double min_a = -1.0;
+        double max_b = 1.0;
+        int index = 0;
         MNKCell BC[] = bestCells(B, (B.currentPlayer() == 0) ? MNKCellState.P1 : MNKCellState.P2);
 
         for(int i=0; i < max_depth; i++) {
+            double[] results = new double[BC.length];
             for(int j=0; j < BC.length; j++) {      //il numero di iterazioni può essere ridotto per migliorare le prestazioni;
-                double results[];
                 results[j] = AlphaBeta(B, min_a, max_b, i);
             }
             if(B.currentPlayer() == 0) {            //*********************************************************
@@ -80,11 +86,11 @@ public class CompetitivePlayer  implements MNKPlayer {
 		return "C0mp3t1t1v3Pl4y3r";
 	}
 
-    private double AlphaBeta(MNKBoard B, int a, int b, int depth) {
-        double eval;
+    private double AlphaBeta(MNKBoard B, double a, double b, int depth) {
+        double eval = 0.0;
 
-        if(depth == 0 || FC.length == 0) {
-            eval = evaluate(B);
+        if(depth == 0 || B.getFreeCells().length == 0) {
+            eval = evaluate(B.B, (B.currentPlayer() == 0) ? MNKCellState.P1 : MNKCellState.P2);
         }
         else if(MNKGameState.WINP1 == B.gameState() ) {
             eval = -1;
@@ -122,8 +128,8 @@ public class CompetitivePlayer  implements MNKPlayer {
     }
 
     private double evaluation(MNKBoard B) {     //verifica solo la sequenza più lunga non se è stata già bloccata o no (futura implementazione)
-        int max_p1 = 0.0;
-        int max_p2 = 0.0;
+        int max_p1 = 0;
+        int max_p2 = 0;
 
         max_p1 = evaluate(B.B, MNKCellState.P1);
         max_p2 = evaluate(B.B, MNKCellState.P2);
@@ -243,58 +249,58 @@ public class CompetitivePlayer  implements MNKPlayer {
         //sconfitta
         //fila di simboli > 
 
-        MNKCell BC[]; 
+        MNKCell[] BC = new MNKCell[40];     //********************************
         int k = 0;
         
         //ciclo per riempire BC prendendo le celle libere adiacenti alle ultime 5 mosse;
         for(int i=1; i < 5; i++) {
-            MNKCell c = MC[MC.length-i];
+            MNKCell c = B.getMarkedCells()[B.getMarkedCells().length-i];
             int m = c.i; int n = c.j;
-            if(B.B[m-1][n-1].state == MNKCellState.FREE && m-1 >= 0 && n-1 >= 0) {
+            if(B.cellState(m-1, n-1) == MNKCellState.FREE && m-1 >= 0 && n-1 >= 0) {
                 if(isntAlready(BC, k, m-1, n-1)){
-                    BC[k] = MNKCell(m-1, n-1);
+                    BC[k] = new MNKCell(m-1, n-1);
                     k++;
                 }
             }
-            if(B.B[m][n-1].state == MNKCellState.FREE && n-1 >= 0) {
+            if(B.cellState(m, n-1) == MNKCellState.FREE && n-1 >= 0) {
                 if(isntAlready(BC, k, m, n-1)){
-                    BC[k] = MNKCell(m, n-1);
+                    BC[k] = new MNKCell(m, n-1);
                     k++;
                 }
             }
-            if(B.B[m+1][n-1].state == MNKCellState.FREE && m+1 < M && n-1 >= 0) {
+            if(B.cellState(m+1, n-1) == MNKCellState.FREE && m+1 < M && n-1 >= 0) {
                 if(isntAlready(BC, k, m+1, n-1)){
-                    BC[k] = MNKCell(m+1, n-1);
+                    BC[k] = new MNKCell(m+1, n-1);
                     k++;
                 }
             }
-            if(B.B[m+1][n].state == MNKCellState.FREE && m+1 < M) {
+            if(B.cellState(m+1, n) == MNKCellState.FREE && m+1 < M) {
                 if(isntAlready(BC, k, m+1, n)){
-                    BC[k] = MNKCell(m+1, n);
+                    BC[k] = new MNKCell(m+1, n);
                     k++;
                 }
             }
-            if(B.B[m+1][n+1].state == MNKCellState.FREE && m+1 < M && n+1 < N) {
+            if(B.cellState(m+1, n+1) == MNKCellState.FREE && m+1 < M && n+1 < N) {
                 if(isntAlready(BC, k, m+1, n+1)){
-                    BC[k] = MNKCell(m+1, n+1);
+                    BC[k] = new MNKCell(m+1, n+1);
                     k++;
                 }
             }
-            if(B.B[m][n+1].state == MNKCellState.FREE && n+1 < N) {
+            if(B.cellState(m, n+1) == MNKCellState.FREE && n+1 < N) {
                 if(isntAlready(BC, k, m, n+1)){
-                    BC[k] = MNKCell(m, n+1);
+                    BC[k] = new MNKCell(m, n+1);
                     k++;
                 }
             }
-            if(B.B[m-1][n+1].state == MNKCellState.FREE && m-1 >= 0 && n+1 < N) {
+            if(B.cellState(m-1, n+1) == MNKCellState.FREE && m-1 >= 0 && n+1 < N) {
                 if(isntAlready(BC, k, m-1, n+1)){
-                    BC[k] = MNKCell(m-1, n+1);
+                    BC[k] = new MNKCell(m-1, n+1);
                     k++;
                 }
             }
-            if(B.B[m-1][n].state == MNKCellState.FREE && m-1 >= 0) {
+            if(B.cellState(m-1, n) == MNKCellState.FREE && m-1 >= 0) {
                 if(isntAlready(BC, k, m-1, n)){
-                    BC[k] = MNKCell(m-1, n);
+                    BC[k] = new MNKCell(m-1, n);
                     k++;
                 }
             }
@@ -311,10 +317,12 @@ public class CompetitivePlayer  implements MNKPlayer {
         }
 
         //cerca una mossa per non perdere
+
+        return BC;
     }
 
     //verifica che una cella di coordinate m, n non sia già presente nell'array
-    private bool isntAlready(MNKCell A[], int k, int m, int n) {
+    private boolean isntAlready(MNKCell A[], int k, int m, int n) {
         for(int i=0; i < k; i++) {
             if(A[i].i == m && A[i].j == n) return false;
         }
