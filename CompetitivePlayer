@@ -49,7 +49,7 @@ public class CompetitivePlayer  implements MNKPlayer {
 		}
 
         //iterative deepening
-        final int max_depth = 5;
+        final int max_depth = 4;
         double min_a = -1.0;
         double max_b = 1.0;
         int index = 0;
@@ -251,54 +251,56 @@ public class CompetitivePlayer  implements MNKPlayer {
 
         MNKCell[] BC = new MNKCell[40];     //********************************
         int k = 0;
-        
+      
         //ciclo per riempire BC prendendo le celle libere adiacenti alle ultime 5 mosse;
-        for(int i=1; i < 5; i++) {
+        for(int i=1; i < ((B.getMarkedCells().length < 5) ? B.getMarkedCells().length : 5); i++) {
+
             MNKCell c = B.getMarkedCells()[B.getMarkedCells().length-i];
             int m = c.i; int n = c.j;
-            if(B.cellState(m-1, n-1) == MNKCellState.FREE && m-1 >= 0 && n-1 >= 0) {
+
+            if(m-1 >= 0 && n-1 >= 0 && B.cellState(m-1, n-1) == MNKCellState.FREE) {
                 if(isntAlready(BC, k, m-1, n-1)){
                     BC[k] = new MNKCell(m-1, n-1);
                     k++;
                 }
             }
-            if(B.cellState(m, n-1) == MNKCellState.FREE && n-1 >= 0) {
+            if(n-1 >= 0 && B.cellState(m, n-1) == MNKCellState.FREE) {
                 if(isntAlready(BC, k, m, n-1)){
                     BC[k] = new MNKCell(m, n-1);
                     k++;
                 }
             }
-            if(B.cellState(m+1, n-1) == MNKCellState.FREE && m+1 < M && n-1 >= 0) {
+            if(m+1 < M && n-1 >= 0 && B.cellState(m+1, n-1) == MNKCellState.FREE) {
                 if(isntAlready(BC, k, m+1, n-1)){
                     BC[k] = new MNKCell(m+1, n-1);
                     k++;
                 }
             }
-            if(B.cellState(m+1, n) == MNKCellState.FREE && m+1 < M) {
+            if(m+1 < M && B.cellState(m+1, n) == MNKCellState.FREE) {
                 if(isntAlready(BC, k, m+1, n)){
                     BC[k] = new MNKCell(m+1, n);
                     k++;
                 }
             }
-            if(B.cellState(m+1, n+1) == MNKCellState.FREE && m+1 < M && n+1 < N) {
+            if(m+1 < M && n+1 < N && B.cellState(m+1, n+1) == MNKCellState.FREE) {
                 if(isntAlready(BC, k, m+1, n+1)){
                     BC[k] = new MNKCell(m+1, n+1);
                     k++;
                 }
             }
-            if(B.cellState(m, n+1) == MNKCellState.FREE && n+1 < N) {
+            if(n+1 < N && B.cellState(m, n+1) == MNKCellState.FREE) {
                 if(isntAlready(BC, k, m, n+1)){
                     BC[k] = new MNKCell(m, n+1);
                     k++;
                 }
             }
-            if(B.cellState(m-1, n+1) == MNKCellState.FREE && m-1 >= 0 && n+1 < N) {
+            if(m-1 >= 0 && n+1 < N && B.cellState(m-1, n+1) == MNKCellState.FREE) {
                 if(isntAlready(BC, k, m-1, n+1)){
                     BC[k] = new MNKCell(m-1, n+1);
                     k++;
                 }
             }
-            if(B.cellState(m-1, n) == MNKCellState.FREE && m-1 >= 0) {
+            if( m-1 >= 0 && B.cellState(m-1, n) == MNKCellState.FREE) {
                 if(isntAlready(BC, k, m-1, n)){
                     BC[k] = new MNKCell(m-1, n);
                     k++;
@@ -313,11 +315,11 @@ public class CompetitivePlayer  implements MNKPlayer {
                 BC[i] = BC[0];
                 BC[0] = c;
             }
-            else B.unmarkCell();
+            B.unmarkCell();
         }
 
         //cerca una mossa per non perdere
-
+        BC[0] = B.getFreeCells()[0];
         return BC;
     }
 
