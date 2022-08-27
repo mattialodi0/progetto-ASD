@@ -3,6 +3,9 @@ package mnkgame;
 import java.util.Random;
 import java.util.ArrayList;
 
+//usa un array dinamico per BC
+
+
 public class CompetitivePlayer1  implements MNKPlayer {
 	private Random rand;
     private int M;
@@ -107,9 +110,11 @@ public class CompetitivePlayer1  implements MNKPlayer {
             ArrayList<MNKCell> BC = bestCells(B, (B.currentPlayer() == 0) ? MNKCellState.P1 : MNKCellState.P2);
             //va per ricorsione
             for(MNKCell c : BC) { 
+                B.markCell(c.i, c.j);
                 eval = Math.max(eval, AlphaBeta(B,a,b,depth-1));
                 a = Math.max(a, eval);
                 if(b <= a) break;
+                B.unmarkCell();
             }
         }
         else if(B.currentPlayer() == 1) {
@@ -118,9 +123,11 @@ public class CompetitivePlayer1  implements MNKPlayer {
             ArrayList<MNKCell> BC = bestCells(B, (B.currentPlayer() == 0) ? MNKCellState.P1 : MNKCellState.P2);
             //va per ricorsione
             for(MNKCell c : BC) { 
+                B.markCell(c.i, c.j);
                 eval = Math.min(eval, AlphaBeta(B,a,b,depth-1));
                 b = Math.min(b, eval);
                 if(b <= a) break;
+                B.unmarkCell();
             }
         }
 
