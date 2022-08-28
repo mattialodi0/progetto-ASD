@@ -273,7 +273,7 @@ public class CompetitivePlayer1  implements MNKPlayer {
         ArrayList<MNKCell> BC = new ArrayList<MNKCell>();      //********************
       
         //ciclo per riempire BC prendendo le celle libere adiacenti alle ultime 5 mosse;
-        for(int i=1; i < ((B.getMarkedCells().length < 5) ? B.getMarkedCells().length : 5); i++) {
+        for(int i=1; i <= ((B.getMarkedCells().length < 5) ? B.getMarkedCells().length : 5); i++) {
 
             MNKCell c = B.getMarkedCells()[B.getMarkedCells().length-i];
             int m = c.i; int n = c.j;
