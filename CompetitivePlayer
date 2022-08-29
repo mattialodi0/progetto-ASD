@@ -5,13 +5,6 @@ import java.util.ArrayList;
 
 //usa un array dinamico per BC
 
-package mnkgame;
-
-import java.util.Random;
-import java.util.ArrayList;
-
-//usa un array dinamico per BC
-
 
 public class CompetitivePlayer  implements MNKPlayer {
 	private Random rand;
