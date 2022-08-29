@@ -60,7 +60,7 @@ public class CompetitivePlayer  implements MNKPlayer {
 
         for(int i=0; i < max_depth; i++) {
             double[] results = new double[BC.size()];
-            for(int j=0; j < BC.size(); j++) {      //il numero di iterazioni può essere ridotto per migliorare le prestazioni;
+            for(int j=0; j < BC.size(); j++) {          //il numero di iterazioni può essere ridotto per migliorare le prestazioni;
                 results[j] = AlphaBeta(B, min_a, max_b, i);
             }
             if(B.currentPlayer() == 0) {            //*********************************************************
@@ -94,7 +94,7 @@ public class CompetitivePlayer  implements MNKPlayer {
         double eval = 0.0;
 
         if(depth == 0 || B.getFreeCells().length == 0) {
-            eval = evaluation(B);                  //evaluate(B.B, (B.currentPlayer() == 0) ? MNKCellState.P1 : MNKCellState.P2);
+            eval = evaluation(B);              
         }
         else if(MNKGameState.WINP1 == B.gameState() ) {
             eval = -1;
@@ -180,86 +180,119 @@ public class CompetitivePlayer  implements MNKPlayer {
             }
             u = 0;
         }
-     // CONTROLLO DIAGONALE 
-     		for (int j = 0; j<N; j++) { // MATRICE TRIANGOLARE SUPERIORE
-     			int l = 0;
-     			while (l<M && j+l<N) {
-     				if (l==0) {
-     					u = 0;
-     				}
-     				if (B[l][j+l] == state) {
-     					u++;
-     					u_max = Math.max(u, u_max);
-     				}
-     				else {
-     					u=0;
-     				}
-     				l++;
-     			}
-     		}
-     		for (int i = 1; i<M; i++) { // MATRICE TRIANGOLARE INFERIORE
-    			int l=0;
-    			while (l<N && i+l<M) {
-    				if (l==0) {
-    					u=0;
-    				}
-    				if (B[i+l][l] == state) {
-    					u++;
-    					u_max = Math.max(u, u_max);
-    				}
-    				else {
-    					u=0;
-    				}
-    				l++;
-    			}
-    		}
+            
+        //CONTROLLO DIAGONALE 
+        for (int j = 0; j<N; j++) { // MATRICE TRIANGOLARE SUPERIORE
+        	int l = 0;
+        	while (l<M && j+l<N) {
+        		if (l==0) {
+        			u = 0;
+        		}
+        		if (B[l][j+l] == state) {
+        			u++;
+        			u_max = Math.max(u, u_max);
+        		}
+        		else {
+        			u=0;
+        		}
+        		l++;
+        	}
+        }
+        for (int i = 1; i<M; i++) { // MATRICE TRIANGOLARE INFERIORE
+        	int l=0;
+        	while (l<N && i+l<M) {
+        		if (l==0) {
+        			u=0;
+        		}
+        		if (B[i+l][l] == state) {
+        			u++;
+        			u_max = Math.max(u, u_max);
+        		}
+        		else {
+        			u=0;
+        		}
+        		l++;
+        	}
+        }
      	// CONTROLLO ANTI-DIAGONALE
-    		for (int j = N; j>0; j--) { // MATRICE TRIANGOLARE SUPERIORE (ANTI)
-    			int l = 0;
-    			while (l<M && j-l>0) {
-    				if (l==0) {
-    					u=0;
-    				}
-    				if (B[l][j-l-1] == state) {
-    					u++;
-    					u_max = Math.max(u, u_max);
-    				}
-    				else {
-    					u=0;
-    				}
-    				l++;
-    			}
-    		}
-    		for (int i = 1; i<M; i++) { // MATRICE TRIANGOLARE INFERIORE (ANTI)
-    			int l = 0;
-    			while (l+i<M && N-l>0) {
-    				if (l==0) {
-    					u = 0;
-    				}
-    				if (B[i+l][N-l-1] == state) {
-    					u++;
-    					u_max = Math.max(u, u_max);
-    				}
-    				else {
-    					u=0;
-    				}
-    				l++;
-    			}
-    		}
+        for (int j = N; j>0; j--) { // MATRICE TRIANGOLARE SUPERIORE (ANTI)
+        	int l = 0;
+        	while (l<M && j-l>0) {
+        		if (l==0) {
+        			u=0;
+        		}
+        		if (B[l][j-l-1] == state) {
+        			u++;
+        			u_max = Math.max(u, u_max);
+        		}
+        		else {
+        			u=0;
+        		}
+        		l++;
+        	}
+        }
+        for (int i = 1; i<M; i++) { // MATRICE TRIANGOLARE INFERIORE (ANTI)
+        	int l = 0;
+        	while (l+i<M && N-l>0) {
+        		if (l==0) {
+        			u = 0;
+        		}
+        		if (B[i+l][N-l-1] == state) {
+        			u++;
+        			u_max = Math.max(u, u_max);
+        		}
+        		else {
+        			u=0;
+        		}
+        		l++;
+        	}
+        }
         
 
         return u_max;
     }
 
     private ArrayList<MNKCell> bestCells(MNKBoard B, MNKCellState state) {
-        //prende le celle dalla fine MC  (ordine temporale)
-        //vittoria 
-        //sconfitta
-        //fila di simboli > 
 
-        ArrayList<MNKCell> BC = new ArrayList<MNKCell>();      //********************
+        ArrayList<MNKCell> BC = findFreeCells(B, state);
+
+        //nel caso in cui non sia stata trovata nessuna cella vuota popola casualmente BC
+        if(BC.size() == 0) {
+            BC.add(B.getFreeCells()[rand.nextInt(B.getFreeCells().length)]);
+            BC.add(B.getFreeCells()[rand.nextInt(B.getFreeCells().length)]);
+            BC.add(B.getFreeCells()[rand.nextInt(B.getFreeCells().length)]);
+        }
+
+        //cerca una mossa per vincere
+        for(int i=0; i < BC.size(); i++) {
+            if(B.markCell(BC.get(i).i, BC.get(i).j) == myWin) {
+                MNKCell c = BC.get(i);
+                BC.set(i, BC.get(0));
+                BC.set(0, c);
+            }
+            B.unmarkCell();
+        }
+
+        //cerca una mossa per non perdere
+
+        //ordina le altre mosse
+
+        return BC;
+    }
+
+    //verifica che una cella di coordinate m, n non sia già presente nell'array
+    private boolean isntAlready(ArrayList<MNKCell> A, int m, int n) {
+        for(int i=0; i < A.size(); i++) {
+            if(A.get(i).i == m && A.get(i).j == n) return false;
+        }
+        return true;
+    }
+
+    //riempie BC prendendo le celle libere adiacenti alle ultime 5 mosse;
+    private ArrayList<MNKCell> findFreeCells(MNKBoard B, MNKCellState state) {
+
+        ArrayList<MNKCell> BC = new ArrayList<MNKCell>();
       
-        //ciclo per riempire BC prendendo le celle libere adiacenti alle ultime 5 mosse;
         for(int i=0; i < ((B.getMarkedCells().length < 5) ? B.getMarkedCells().length : 5); i++) {
 
             MNKCell c = B.getMarkedCells()[B.getMarkedCells().length-i-1];
@@ -315,34 +348,16 @@ public class CompetitivePlayer  implements MNKPlayer {
             }
         }
 
-        //nel caso in cui non sia stata trovata nessuna cella vuota popola casualmente BC
-        if(BC.size() == 0) {
-            BC.add(B.getFreeCells()[rand.nextInt(B.getFreeCells().length)]);
-            BC.add(B.getFreeCells()[rand.nextInt(B.getFreeCells().length)]);
-            BC.add(B.getFreeCells()[rand.nextInt(B.getFreeCells().length)]);
-        }
-        
-
-        //cerca una mossa per vincere
-        for(int i=0; i < BC.size(); i++) {
-            if(B.markCell(BC.get(i).i, BC.get(i).j) == myWin) {
-                MNKCell c = BC.get(i);
-                BC.set(i, BC.get(0));
-                BC.set(0, c);
-            }
-            B.unmarkCell();
-        }
-
-        //cerca una mossa per non perdere
-
         return BC;
     }
 
-    //verifica che una cella di coordinate m, n non sia già presente nell'array
-    private boolean isntAlready(ArrayList<MNKCell> A, int m, int n) {
-        for(int i=0; i < A.size(); i++) {
-            if(A.get(i).i == m && A.get(i).j == n) return false;
-        }
-        return true;
+    //riempie BC prendendo le celle libere adiacenti alle ultime 5 mosse;
+    private ArrayList<MNKCell> findFreeCells1(MNKBoard B, MNKCellState state) {
+
+        ArrayList<MNKCell> BC = new ArrayList<MNKCell>();
+      
+        
+
+        return BC;
     }
 }
