@@ -5,6 +5,13 @@ import java.util.ArrayList;
 
 //usa un array dinamico per BC
 
+package mnkgame;
+
+import java.util.Random;
+import java.util.ArrayList;
+
+//usa un array dinamico per BC
+
 
 public class CompetitivePlayer  implements MNKPlayer {
 	private Random rand;
@@ -260,9 +267,9 @@ public class CompetitivePlayer  implements MNKPlayer {
         ArrayList<MNKCell> BC = new ArrayList<MNKCell>();      //********************
       
         //ciclo per riempire BC prendendo le celle libere adiacenti alle ultime 5 mosse;
-        for(int i=1; i <= ((B.getMarkedCells().length < 5) ? B.getMarkedCells().length : 5); i++) {
+        for(int i=0; i < ((B.getMarkedCells().length < 5) ? B.getMarkedCells().length : 5); i++) {
 
-            MNKCell c = B.getMarkedCells()[B.getMarkedCells().length-i];
+            MNKCell c = B.getMarkedCells()[B.getMarkedCells().length-i-1];
             int m = c.i; int n = c.j;
 
             if(m-1 >= 0 && n-1 >= 0 && B.cellState(m-1, n-1) == MNKCellState.FREE) {
@@ -315,6 +322,14 @@ public class CompetitivePlayer  implements MNKPlayer {
             }
         }
 
+        //nel caso in cui non sia stata trovata nessuna cella vuota popola casualmente BC
+        if(BC.size() == 0) {
+            BC.add(B.getFreeCells()[rand.nextInt(B.getFreeCells().length)]);
+            BC.add(B.getFreeCells()[rand.nextInt(B.getFreeCells().length)]);
+            BC.add(B.getFreeCells()[rand.nextInt(B.getFreeCells().length)]);
+        }
+        
+
         //cerca una mossa per vincere
         for(int i=0; i < BC.size(); i++) {
             if(B.markCell(BC.get(i).i, BC.get(i).j) == myWin) {
@@ -326,6 +341,7 @@ public class CompetitivePlayer  implements MNKPlayer {
         }
 
         //cerca una mossa per non perdere
+
         return BC;
     }
 
