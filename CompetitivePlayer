@@ -83,6 +83,7 @@ public class CompetitivePlayer  implements MNKPlayer {
                 }
             }
         }
+
         B.markCell(BC.get(index).i, BC.get(index).j);
         return BC.get(index);
 	}
@@ -94,10 +95,7 @@ public class CompetitivePlayer  implements MNKPlayer {
     private double AlphaBeta(MNKBoard B, double a, double b, int depth) {
         double eval = 0.0;
 
-        if(depth == 0 || B.getFreeCells().length == 0) {
-            eval = evaluation(B);              
-        }
-        else if(MNKGameState.WINP1 == B.gameState() ) {
+        if(MNKGameState.WINP1 == B.gameState() ) {
             eval = -1;
         }
         else if(MNKGameState.WINP2 == B.gameState()) {
@@ -105,6 +103,9 @@ public class CompetitivePlayer  implements MNKPlayer {
         }
         else if(MNKGameState.DRAW == B.gameState()) {
             eval = 0;
+        }
+        else if(depth == 0 || B.getFreeCells().length == 0) {
+            eval = evaluation(B);
         }
         else if(B.currentPlayer() == 0) {
             eval = -10;
@@ -215,6 +216,7 @@ public class CompetitivePlayer  implements MNKPlayer {
         		l++;
         	}
         }
+
      	// CONTROLLO ANTI-DIAGONALE
         for (int j = N; j>0; j--) { // MATRICE TRIANGOLARE SUPERIORE (ANTI)
         	int l = 0;
@@ -257,7 +259,7 @@ public class CompetitivePlayer  implements MNKPlayer {
 
         ArrayList<MNKCell> BC = findFreeCells1(B, state);
 
-        //nel caso in cui non sia stata trovata nessuna cella vuota popola casualmente BC
+        //nel caso in cui non sia stata trovata nessuna cella vuota popola casualmente BC, inutile con findFreeCells1
         if(BC.size() == 0) {
             BC.add(B.getFreeCells()[rand.nextInt(B.getFreeCells().length)]);
             BC.add(B.getFreeCells()[rand.nextInt(B.getFreeCells().length)]);
@@ -274,9 +276,9 @@ public class CompetitivePlayer  implements MNKPlayer {
             B.unmarkCell();
         }
 
-        //cerca una mossa per non perdere
-
         //ordina le altre mosse
+
+
 
         return BC;
     }
