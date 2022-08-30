@@ -62,10 +62,12 @@ public class CompetitivePlayer  implements MNKPlayer {
         for(int i=0; i < max_depth; i++) {
             double[] results = new double[BC.size()];
             for(int j=0; j < BC.size(); j++) {          //il numero di iterazioni può essere ridotto per migliorare le prestazioni;
+                B.markCell(BC.get(j).i, BC.get(j).j);
                 results[j] = AlphaBeta(B, min_a, max_b, i);
+                B.unmarkCell();
             }
             if(B.currentPlayer() == 0) {            //*********************************************************
-                double max = -10;
+                double max = -1000;
                 for(int j=0; j < BC.size(); j++) {
                     if(results[j] > max) {
                        max = results[j];
@@ -74,7 +76,7 @@ public class CompetitivePlayer  implements MNKPlayer {
                 }
             }
             else {
-                double min = 10;
+                double min = 1000;
                 for(int j=0; j < BC.size(); j++) {
                     if(results[j] < min) {
                        min = results[j];
@@ -92,14 +94,17 @@ public class CompetitivePlayer  implements MNKPlayer {
 		return "C0mp3t1t1v3Pl4y3r";
 	}
 
+
+    
+
     private double AlphaBeta(MNKBoard B, double a, double b, int depth) {
         double eval = 0.0;
 
-        if(MNKGameState.WINP1 == B.gameState() ) {
-            eval = -1;
+        if(MNKGameState.WINP1 == B.gameState() ) {          //ho invertito 1 e -1 perchè il giocatore 1 dovrebbe vincere con 1
+            eval = 1;
         }
         else if(MNKGameState.WINP2 == B.gameState()) {
-            eval = 1;
+            eval = -1;
         }
         else if(MNKGameState.DRAW == B.gameState()) {
             eval = 0;
@@ -114,7 +119,7 @@ public class CompetitivePlayer  implements MNKPlayer {
             //va per ricorsione
             for(MNKCell c : BC) { 
                 B.markCell(c.i, c.j);
-                eval = Math.max(eval, AlphaBeta(B,a,b,depth-1));
+                eval = Math.max(eval, AlphaBeta(B, a, b, depth-1));
                 a = Math.max(a, eval);
                 B.unmarkCell();
                 if(b <= a) break;
@@ -127,7 +132,7 @@ public class CompetitivePlayer  implements MNKPlayer {
             //va per ricorsione
             for(MNKCell c : BC) { 
                 B.markCell(c.i, c.j);
-                eval = Math.min(eval, AlphaBeta(B,a,b,depth-1));
+                eval = Math.min(eval, AlphaBeta(B, a, b, depth-1));
                 b = Math.min(b, eval);
                 B.unmarkCell();
                 if(b <= a) break;
@@ -257,7 +262,7 @@ public class CompetitivePlayer  implements MNKPlayer {
 
     private ArrayList<MNKCell> bestCells(MNKBoard B, MNKCellState state) {
 
-        ArrayList<MNKCell> BC = findFreeCells1(B, state);
+        ArrayList<MNKCell> BC = findFreeCells(B, state);
 
         //nel caso in cui non sia stata trovata nessuna cella vuota popola casualmente BC, inutile con findFreeCells1
         if(BC.size() == 0) {
@@ -268,7 +273,7 @@ public class CompetitivePlayer  implements MNKPlayer {
 
         //cerca una mossa per vincere
         for(int i=0; i < BC.size(); i++) {
-            if(B.markCell(BC.get(i).i, BC.get(i).j) == myWin) {
+            if(B.markCell(BC.get(i).i, BC.get(i).j) == myWin) { //se la trova le da la massima priorità
                 MNKCell c = BC.get(i);
                 BC.set(i, BC.get(0));
                 BC.set(0, c);
@@ -277,8 +282,7 @@ public class CompetitivePlayer  implements MNKPlayer {
         }
 
         //ordina le altre mosse
-
-
+        //..........
 
         return BC;
     }
@@ -295,11 +299,12 @@ public class CompetitivePlayer  implements MNKPlayer {
     private ArrayList<MNKCell> findFreeCells(MNKBoard B, MNKCellState state) {
 
         ArrayList<MNKCell> BC = new ArrayList<MNKCell>();
+        MNKCell MC[] = B.getMarkedCells();
         final int depth_MC = 10;
 
-        for(int i=0; i < ((B.getMarkedCells().length < depth_MC) ? B.getMarkedCells().length : depth_MC); i++) {    
+        for(int i=0; i < ((MC.length < depth_MC) ? MC.length : depth_MC); i++) {    
 
-            MNKCell c = B.getMarkedCells()[B.getMarkedCells().length-i-1];
+            MNKCell c = MC[MC.length-i-1];
             int m = c.i; int n = c.j;
 
             if(m-1 >= 0 && n-1 >= 0 && B.cellState(m-1, n-1) == MNKCellState.FREE) {
@@ -360,9 +365,10 @@ public class CompetitivePlayer  implements MNKPlayer {
 
         ArrayList<MNKCell> BC = new ArrayList<MNKCell>();
         MNKCell FC[] = B.getFreeCells(); 
+        MNKCell MC[] = B.getMarkedCells(); 
       
         for(MNKCell d : FC) {
-            if(hasMarkedCellCloseBy(B.getMarkedCells(), d)) {
+            if(hasMarkedCellCloseBy(MC, d)) {
                 if(isntAlready(BC, d.i, d.j)){
                     BC.add(d);
                 }
@@ -373,92 +379,49 @@ public class CompetitivePlayer  implements MNKPlayer {
     }
 
     private boolean hasMarkedCellCloseBy(MNKCell MC[], MNKCell c) {
-        int m; int n;
 
-		//cerca una cella valida		
-		if(c.i < M-1 && c.j < N-1) {
-			m = c.i+1; n = c.j+1;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < MC.length; k++) {
-				if(m == MC[k].i && n == MC[k].j) {
-        			return true;
-				}
-			}
-		}
-		if(c.i > 0 && c.j > 0) {
-			m = c.i-1; n = c.j-1;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < MC.length; k++) {
-				if(m == MC[k].i && n == MC[k].j) {
-        			return true;
-				}
-			}
-		}
-		if(c.i < M-1 && c.j > 0) {
-			m = c.i+1; n = c.j-1;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < MC.length; k++) {
-				if(m == MC[k].i && n == MC[k].j) {
-        			return true;
-				}
-			}
-		}
-		if(c.i > 0 && c.j < N-1) {
-			m = c.i-1; n = c.j+1;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < MC.length; k++) {
-				if(m == MC[k].i && n == MC[k].j) {
-        			return true;
-				}
-			}
-		}
-
-
-		if(c.i < M-1) {
-			m = c.i+1; n = c.j;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < MC.length; k++) {
-				if(m == MC[k].i && n == MC[k].j) {
-        			return true;
-				}
-			}
-		}
-		if(c.i > 0) {
-			m = c.i-1; n = c.j;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < MC.length; k++) {
-				if(m == MC[k].i && n == MC[k].j) {
-        			return true;
-				}
-			}
-		}
-		if(c.j > 0) {
-			m = c.i; n = c.j-1;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < MC.length; k++) {
-				if(m == MC[k].i && n == MC[k].j) {
-        			return true;
-				}
-			}
-		}
-		if(c.j < N-1) {
-			m = c.i; n = c.j+1;
-			//controlla che non sia marcata
-			MNKCell f = new MNKCell(m, n);
-			for(int k=0; k < MC.length; k++) {
-				if(m == MC[k].i && n == MC[k].j) {
-        			return true;
-				}
-			}
-		}
+        if(c.i+1 < M && c.j+1 < N) {
+            for(MNKCell d : MC) {
+                if(d.i == c.i+1 && d.j == c.j+1) return true;
+            }
+        }
+        if(c.i+1 < M) {
+            for(MNKCell d : MC) {
+                if(d.i == c.i+1 && d.j == c.j) return true;
+            }
+        }
+        if(c.i+1 < M && c.j-1 > 0) {
+            for(MNKCell d : MC) {
+                if(d.i == c.i+1 && d.j == c.j-1) return true;
+            }
+        }
+        if(c.j-1 > 0) {
+            for(MNKCell d : MC) {
+                if(d.i == c.i && d.j == c.j-1) return true;
+            }
+        }
+        if(c.i-1 > 0 && c.j-1 > 0) {
+            for(MNKCell d : MC) {
+                if(d.i == c.i-1 && d.j == c.j-1) return true;
+            }
+        }
+        if(c.i-1 > 0) {
+            for(MNKCell d : MC) {
+                if(d.i == c.i-1 && d.j == c.j) return true;
+            }
+        }
+        if(c.i-1 > 0 && c.j+1 < M) {
+            for(MNKCell d : MC) {
+                if(d.i == c.i-1 && d.j == c.j+1) return true;
+            }
+        }
+        if(c.j+1 < M) {
+            for(MNKCell d : MC) {
+                if(d.i == c.i && d.j == c.j+1) return true;
+            }
+        }
 
 		return false;	
     }
+    
 }
