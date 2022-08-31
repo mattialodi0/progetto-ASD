@@ -233,3 +233,129 @@ private double evaluate(MNKCellState[][] B, MNKCellState state) {
 
         return u_max;
     }
+
+
+////////////////
+
+
+private double evaluate(MNKCellState[][] B, MNKCellState state) {
+        int u_max = 0;
+		double p_max = 0;
+        int u = 0;
+		double p = 0;	//priorità
+
+        //controllo delle colonne
+        for(int k=0; k < N; k++) {
+            for(int h=0; h < M; h++) {
+                if(B[h][k] == state) {
+					if(u == 0) {
+						if(h-1 > 0 && B[h-1][k] == MNKCellState.FREE) p += 0.5;
+						else p = 0;
+					}
+                    u++;
+					if(u*p >= u_max*p_max) {
+						if(h+1 < M && B[h+1][k] == MNKCellState.FREE) p += 0.5;
+						u_max = u;
+						p_max = p;
+					}
+                }
+                else {
+                    u = 0; p = 0;
+                }
+            }
+            u = 0; p = 0;
+        }
+
+        //controllo delle righe
+        for(int k=0; k < M; k++) {
+            for(int h=0; h < N; h++) {
+                if(B[k][h] == state) {
+					if(u == 0) {
+						if(h-1 > 0 && B[k][h-1] == MNKCellState.FREE) p += 0.5;
+						else p = 0;
+					}
+                    u++;
+                    if(u*p >= u_max*p_max) {
+						if(h+1 < M && B[k][h+1] == MNKCellState.FREE) p += 0.5;
+						u_max = u;
+						p_max = p;
+					}
+                }
+                else {
+                    u = 0; p = 0;
+                }
+            }
+            u = 0; p = 0;
+        }
+            
+        //CONTROLLO DIAGONALE 
+        for (int j = 0; j<N; j++) { // MATRICE TRIANGOLARE SUPERIORE
+        	int l = 0;
+        	while (l<M && j+l<N) {
+        		if (l==0) {
+        			u = 0;
+        		}
+        		if (B[l][j+l] == state) {
+        			u++;
+        			u_max = Math.max(u, u_max);
+        		}
+        		else {
+        			u=0;
+        		}
+        		l++;
+        	}
+        }
+        for (int i = 1; i<M; i++) { // MATRICE TRIANGOLARE INFERIORE
+        	int l=0;
+        	while (l<N && i+l<M) {
+        		if (l==0) {
+        			u=0;
+        		}
+        		if (B[i+l][l] == state) {
+        			u++;
+        			u_max = Math.max(u, u_max);
+        		}
+        		else {
+        			u=0;
+        		}
+        		l++;
+        	}
+        }
+
+     	// CONTROLLO ANTI-DIAGONALE
+        for (int j = N; j>0; j--) { // MATRICE TRIANGOLARE SUPERIORE (ANTI)
+        	int l = 0;
+        	while (l<M && j-l>0) {
+        		if (l==0) {
+        			u=0;
+        		}
+        		if (B[l][j-l-1] == state) {
+        			u++;
+        			u_max = Math.max(u, u_max);
+        		}
+        		else {
+        			u=0;
+        		}
+        		l++;
+        	}
+        }
+        for (int i = 1; i<M; i++) { // MATRICE TRIANGOLARE INFERIORE (ANTI)
+        	int l = 0;
+        	while (l+i<M && N-l>0) {
+        		if (l==0) {
+        			u = 0;
+        		}
+        		if (B[i+l][N-l-1] == state) {
+        			u++;
+        			u_max = Math.max(u, u_max);
+        		}
+        		else {
+        			u=0;
+        		}
+        		l++;
+        	}
+        }
+        
+
+        return (double)u_max;
+    }
