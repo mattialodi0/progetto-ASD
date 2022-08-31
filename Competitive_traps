@@ -423,16 +423,16 @@ public class CompetitivePlayer  implements MNKPlayer {
 	B.markCell(c.i,c.j);
 	int cont=0;
 
-	int pos1 = rand.nextInt(FC.length);
+	int pos1 = rand.nextInt(B.getFreeCells().length);
 	while (blockvictory(B,pos1) == true) {
-		pos1 = rand.nextInt(FC.length);		// cerco una mossa a caso per l'avversario che non blocchi nessuna delle 2 possibili vittorie
+		pos1 = rand.nextInt(B.getFreeCells().length);		// cerco una mossa a caso per l'avversario che non blocchi nessuna delle 2 possibili vittorie
 	}						// (2 possibili vittorie perchè in teoria è scattata una trappola)
 
-	MNKCell d = FC[pos1]; // mossa a caso dell'avversario
+	MNKCell d = B.getFreeCells()[pos1]; // mossa a caso dell'avversario
 	B.markCell(d.i,d.j); 
 	
-	for (i=0; i < FC.length; i++) {
-		MNKCell e = FC[i];
+	for (i=0; i < B.getFreeCells().length; i++) {
+		MNKCell e = B.getFreeCells()[i];
 		if(B.markCell(e.i,e.j) == myWin) cont++;
 		B.unmarkCell();
 	}
@@ -445,15 +445,15 @@ public class CompetitivePlayer  implements MNKPlayer {
 
     private boolean blockvictory(MNKBoard B, int pos1) {
 	boolean okkey=false;
-	int pos2 = rand.nextInt(FC.length);
+	int pos2 = rand.nextInt(B.getFreeCells().length);
 	while(pos1 == pos2) {
-		pos2 = rand.nextInt(FC.length); 
+		pos2 = rand.nextInt(B.getFreeCells().length); 
 	}
 
-	MNKCell d = FC[pos2];
+	MNKCell d = B.getFreeCells()[pos2];
 	B.markCell(d.i,d.j);
 
-	MNKCell e = FC[pos1];
+	MNKCell e = B.getFreeCells()[pos1];
 	if (B.markCell(e.i,e.j) == myWin) okkey=true;
 
 	B.unmarkCell(); 	// smarka e
