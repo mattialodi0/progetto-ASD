@@ -271,6 +271,17 @@ public class CompetitivePlayer  implements MNKPlayer {
             BC.add(B.getFreeCells()[rand.nextInt(B.getFreeCells().length)]);
         }
 
+
+	//cerca una mossa che fa scattare una trappola
+	for(int i=0; i < BC.size(); i++) {
+	    MNKCell c = BC.get(i);
+            if(trap(B,c) == true) { 		//se la trova le da la massima priorità
+                BC.set(i, BC.get(0));
+                BC.set(0, c);
+            }
+        }
+
+
         //cerca una mossa per vincere
         for(int i=0; i < BC.size(); i++) {
             if(B.markCell(BC.get(i).i, BC.get(i).j) == myWin) { //se la trova le da la massima priorità
@@ -411,7 +422,6 @@ public class CompetitivePlayer  implements MNKPlayer {
     private boolean trap(MNKBoard B, MNKCell c) {
 	B.markCell(c.i,c.j);
 	int cont=0;
-	boolean okkey=false;
 
 	int pos1 = rand.nextInt(FC.length);
 	while (blockvictory(B,pos1) == true) {
@@ -427,10 +437,14 @@ public class CompetitivePlayer  implements MNKPlayer {
 		B.unmarkCell();
 	}
 
+	B.unmarkCell(); 	// smarka d
+	B.unmarkCell(); 	// smarka c
+
 	return (cont >= 2 ? true : false);
     }
 
     private boolean blockvictory(MNKBoard B, int pos1) {
+	boolean okkey=false;
 	int pos2 = rand.nextInt(FC.length);
 	while(pos1 == pos2) {
 		pos2 = rand.nextInt(FC.length); 
@@ -440,8 +454,12 @@ public class CompetitivePlayer  implements MNKPlayer {
 	B.markCell(d.i,d.j);
 
 	MNKCell e = FC[pos1];
-	if (B.markCell(e.i,e.j) == myWin) return true;
-	return false;
+	if (B.markCell(e.i,e.j) == myWin) okkey=true;
+
+	B.unmarkCell(); 	// smarka e
+	B.unmarkCell(); 	// smarka d
+
+	return okkey;
     }
 
 
