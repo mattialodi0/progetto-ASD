@@ -7,7 +7,7 @@ import java.util.HashSet;
 //usa un array dinamico per BC
 
 
-public class CompetitivePlayer  implements MNKPlayer {
+public class CompetitivePlayer_traps  implements MNKPlayer {
 	private Random rand;
     private int M;
     private int N;
@@ -17,7 +17,7 @@ public class CompetitivePlayer  implements MNKPlayer {
 	private MNKGameState yourWin;
 	private int TIMEOUT;
 
-	public CompetitivePlayer() {
+	public CompetitivePlayer_traps() {
 	}
 
 	public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
@@ -320,20 +320,25 @@ public class CompetitivePlayer  implements MNKPlayer {
 
             if(m-1 >= 0 && n-1 >= 0 && B.cellState(m-1, n-1) == MNKCellState.FREE) {
 	        if(m-2 >= 0 && n-2 >= 0 && B.cellState(m-2, n-2) == MNKCellState.FREE) {
-			if (isntAlready(BC, m-2, n-2) && trap(B,MNKCell(m-2, n-2))
-				MNKCell d = new MNKCell(m-2, n-2);
+			MNKCell d = new MNKCell(m-2, n-2);
+			if (isntAlready(BC, m-2, n-2) && trap(B,d)) {
 				BC.add(d);
+			}
+		}
 
 		if(isntAlready(BC, m-1, n-1)){
                     	MNKCell d = new MNKCell(m-1, n-1);
                 	BC.add(d);
-            }
+            	}
+	    }
 
             if(n-1 >= 0 && B.cellState(m, n-1) == MNKCellState.FREE) {
 		if(n-2 >= 0 && B.cellState(m, n-2) == MNKCellState.FREE) {
-			if (isntAlready(BC, m, n-2) && trap(B,MNKCell(m, n-2))
-				MNKCell d = new MNKCell(m, n-2);
+			MNKCell d = new MNKCell(m, n-2);
+			if (isntAlready(BC, m, n-2) && trap(B,d)) {
 				BC.add(d);
+			}
+		}
 
                 if(isntAlready(BC, m, n-1)){
                     MNKCell d = new MNKCell(m, n-1);
@@ -343,9 +348,11 @@ public class CompetitivePlayer  implements MNKPlayer {
 
             if(m+1 < M && n-1 >= 0 && B.cellState(m+1, n-1) == MNKCellState.FREE) {
 		if(m+2 < M && n-2 >= 0 && B.cellState(m+2, n-2) == MNKCellState.FREE) {
-			if (isntAlready(BC, m+2, n-2) && trap(B,MNKCell(m+2, n-2))
-				MNKCell d = new MNKCell(m+2, n-2);
+			MNKCell d = new MNKCell(m+2, n-2);
+			if (isntAlready(BC, m+2, n-2) && trap(B,d)) {
 				BC.add(d);
+			}
+		}
 
                 if(isntAlready(BC, m+1, n-1)){
                     MNKCell d = new MNKCell(m+1, n-1);
@@ -355,9 +362,11 @@ public class CompetitivePlayer  implements MNKPlayer {
 
             if(m+1 < M && B.cellState(m+1, n) == MNKCellState.FREE) {
 		if(m+2 < M && B.cellState(m+2, n) == MNKCellState.FREE) {
-			if (isntAlready(BC, m+2, n) && trap(B,MNKCell(m+2, n))
-				MNKCell d = new MNKCell(m+2, n);
+			MNKCell d = new MNKCell(m+2, n);
+			if (isntAlready(BC, m+2, n) && trap(B,d)) {
 				BC.add(d);
+			}
+		}
 
                 if(isntAlready(BC, m+1, n)){
                     MNKCell d = new MNKCell(m+1, n);
@@ -367,9 +376,11 @@ public class CompetitivePlayer  implements MNKPlayer {
 
             if(m+1 < M && n+1 < N && B.cellState(m+1, n+1) == MNKCellState.FREE) {
 		if(m+2 < M && n+2 < N && B.cellState(m+2, n+2) == MNKCellState.FREE) {
-			if (isntAlready(BC, m+2, n+2) && trap(B,MNKCell(m+2, n+2))
-				MNKCell d = new MNKCell(m+2, n+2);
+			MNKCell d = new MNKCell(m+2, n+2);
+			if (isntAlready(BC, m+2, n+2) && trap(B,d)) {
 				BC.add(d);
+			}
+		}
 
                 if(isntAlready(BC, m+1, n+1)){
                     MNKCell d = new MNKCell(m+1, n+1);
@@ -379,9 +390,11 @@ public class CompetitivePlayer  implements MNKPlayer {
 
             if(n+1 < N && B.cellState(m, n+1) == MNKCellState.FREE) {
 		if(n+2 < N && B.cellState(m, n+2) == MNKCellState.FREE) {
-			if (isntAlready(BC, m, n+2) && trap(B,MNKCell(m, n+2))
-				MNKCell d = new MNKCell(m, n+2);
+			MNKCell d = new MNKCell(m, n+2);
+			if (isntAlready(BC, m, n+2) && trap(B,d)) {
 				BC.add(d);
+			}
+		}
 
                 if(isntAlready(BC, m, n+1)){
                     MNKCell d = new MNKCell(m, n+1);
@@ -391,9 +404,11 @@ public class CompetitivePlayer  implements MNKPlayer {
 
             if(m-1 >= 0 && n+1 < N && B.cellState(m-1, n+1) == MNKCellState.FREE) {
 		if(m-2 >= 0 && n+2 < N && B.cellState(m-2, n+2) == MNKCellState.FREE) {
-			if (isntAlready(BC, m-2, n+2) && trap(B,MNKCell(m-2, n+2))
-				MNKCell d = new MNKCell(m-2, n+2);
+			MNKCell d = new MNKCell(m-2, n+2);
+			if (isntAlready(BC, m-2, n+2) && trap(B,d)) {
 				BC.add(d);
+			}
+		}
 
                 if(isntAlready(BC, m-1, n+1)){
                     MNKCell d = new MNKCell(m-1, n+1);
@@ -403,9 +418,11 @@ public class CompetitivePlayer  implements MNKPlayer {
 
             if( m-1 >= 0 && B.cellState(m-1, n) == MNKCellState.FREE) {
 		if( m-2 >= 0 && B.cellState(m-2, n) == MNKCellState.FREE) {
-			if (isntAlready(BC, m-2, n) && trap(B,MNKCell(m-2, n))
-				MNKCell d = new MNKCell(m-2, n);
+			MNKCell d = new MNKCell(m-2, n);
+			if (isntAlready(BC, m-2, n) && trap(B,d)) {
 				BC.add(d);
+			}
+		}
 
                 if(isntAlready(BC, m-1, n)){
                     MNKCell d = new MNKCell(m-1, n);
@@ -431,7 +448,7 @@ public class CompetitivePlayer  implements MNKPlayer {
 	MNKCell d = B.getFreeCells()[pos1]; // mossa a caso dell'avversario
 	B.markCell(d.i,d.j); 
 	
-	for (i=0; i < B.getFreeCells().length; i++) {
+	for (int i=0; i < B.getFreeCells().length; i++) {
 		MNKCell e = B.getFreeCells()[i];
 		if(B.markCell(e.i,e.j) == myWin) cont++;
 		B.unmarkCell();
