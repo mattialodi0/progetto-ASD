@@ -7,7 +7,7 @@ import java.util.HashSet;
 //usa un array dinamico per BC
 
 
-public class CompetitivePlayer1  implements MNKPlayer {
+public class CompetitivePlayer  implements MNKPlayer {
 	private Random rand;
     private int M;
     private int N;
@@ -18,7 +18,7 @@ public class CompetitivePlayer1  implements MNKPlayer {
 	private int TIMEOUT;
     private boolean first;
 
-	public CompetitivePlayer1() {
+	public CompetitivePlayer() {
 	}
 
 	public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
@@ -54,7 +54,7 @@ public class CompetitivePlayer1  implements MNKPlayer {
 		}
 
         //iterative deepening
-        final int max_depth = 5;
+        final int max_depth = 4;
         double min_a = -1.0;
         double max_b = 1.0;
         int index = 0;
@@ -98,7 +98,7 @@ public class CompetitivePlayer1  implements MNKPlayer {
 	}
 
 	public String playerName() {
-		return "C0mp3t1t1v3I";
+		return "C0mp3t1t1v3";
 	}
 
 
@@ -135,7 +135,7 @@ public class CompetitivePlayer1  implements MNKPlayer {
         else if(B.currentPlayer() == 1) {
             eval = 10;
             //crea l'array di mosse migliori
-            ArrayList<MNKCell> BC = bestCells(B, (B.currentPlayer() == 0) ? MNKCellState.P1 : MNKCellState.P2);     //dovrebbe essere migliore ma non lo è
+            ArrayList<MNKCell> BC = bestCells(B, (B.currentPlayer() == 0) ? MNKCellState.P1 : MNKCellState.P2);
             //va per ricorsione
             for(MNKCell c : BC) { 
                 B.markCell(c.i, c.j);
@@ -515,30 +515,9 @@ public class CompetitivePlayer1  implements MNKPlayer {
             BC.add(B.getFreeCells()[rand.nextInt(B.getFreeCells().length)]);
         }
 
-        
-        //ordina le altre mosse in base a quante caselle occupate dal giocatore ci sono vicine (controllo veloce ma efficace nelle matrici piccole)
-        int max1 = 0;
-        int max2 = 0;
-        for(int i=0; i < BC.size(); i++) {
-            int m = hasCloseCells(B, BC.get(i), state);
-            if(m > max1) {
-                max1 = m;
-                MNKCell c = BC.get(i);
-                BC.set(i, BC.get(0));
-                BC.set(0, c);
-            }
-            else if(m > max2) {
-                max2 = m;
-                MNKCell c = BC.get(i);
-                BC.set(i, BC.get(1));
-                BC.set(0, c);
-            }
-        }
-        
-
         //cerca una mossa per vincere
-        for(int i=0; i < BC.size(); i++) {   //se la trova le da la massima priorità
-            if(B.markCell(BC.get(i).i, BC.get(i).j) == (B.currentPlayer() == 0 ? myWin : yourWin)) {  //**************
+        for(int i=0; i < BC.size(); i++) {
+            if(B.markCell(BC.get(i).i, BC.get(i).j) == myWin) { //se la trova le da la massima priorità
                 MNKCell c = BC.get(i);
                 BC.set(i, BC.get(0));
                 BC.set(0, c);
@@ -546,43 +525,20 @@ public class CompetitivePlayer1  implements MNKPlayer {
             B.unmarkCell();
         }
 
-        while(BC.size() > 5) {      //riduce la dimensione di BC a 5
-            BC.remove(BC.size()-1);
-        }
+        //ordina le altre mosse
+        //..........
+
+        
 
         return BC;
     }
 
-    //ritorna per ogni cella il numero di celle vicine con il simbolo del giocatore corrente
-    private int hasCloseCells(MNKBoard B, MNKCell c, MNKCellState state) {
-        int cells = 0;
-
-        if(c.i+1 < M && c.j+1 < N && B.B[c.i+1][c.j+1] == state) {
-            cells += 1;
+    //verifica che una cella di coordinate m, n non sia già presente nell'array
+    private boolean isntAlready(ArrayList<MNKCell> A, int m, int n) {
+        for(int i=0; i < A.size(); i++) {
+            if(A.get(i).i == m && A.get(i).j == n) return false;
         }
-        if(c.i+1 < M && B.B[c.i+1][c.j] == state) {
-            cells += 1;
-        }
-        if(c.i+1 < M && c.j-1 > 0 && B.B[c.i+1][c.j-1] == state) {
-            cells += 1;
-        }
-        if(c.j-1 > 0 && B.B[c.i][c.j-1] == state) {
-            cells += 1;
-        }
-        if(c.i-1 > 0 && c.j-1 > 0 && B.B[c.i-1][c.j-1] == state) {
-            cells += 1;
-        }
-        if(c.i-1 > 0 && B.B[c.i-1][c.j] == state) {
-            cells += 1;
-        }
-        if(c.i-1 > 0 && c.j+1 < M && B.B[c.i-1][c.j+1] == state) {
-            cells += 1;
-        }
-        if(c.j+1 < M && B.B[c.i][c.j+1] == state) {
-            cells += 1;
-        }
-
-        return cells;
+        return true;
     }
 
     //riempie BC prendendo le celle libere adiacenti alle ultime 5 mosse;
@@ -666,14 +622,6 @@ public class CompetitivePlayer1  implements MNKPlayer {
         } 
 
         return BC;
-    }
-
-    //verifica che una cella di coordinate m, n non sia già presente nell'array
-    private boolean isntAlready(ArrayList<MNKCell> A, int m, int n) {
-        for(int i=0; i < A.size(); i++) {
-            if(A.get(i).i == m && A.get(i).j == n) return false;
-        }
-        return true;
     }
 
     private boolean hasMarkedCellCloseBy(MNKCell MC[], MNKCell c) {
