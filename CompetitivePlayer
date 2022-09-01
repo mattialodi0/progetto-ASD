@@ -58,7 +58,7 @@ public class CompetitivePlayer  implements MNKPlayer {
         double min_a = -1.0;
         double max_b = 1.0;
         int index = 0;
-        ArrayList<MNKCell> BC = bestCells(B, (B.currentPlayer() == 0) ? MNKCellState.P1 : MNKCellState.P2);
+        ArrayList<MNKCell> BC = bestCells(B, MNKCellState.P1);
 
         for(int i=0; i < max_depth; i++) {
             double[] results = new double[BC.size()];
@@ -160,7 +160,8 @@ public class CompetitivePlayer  implements MNKPlayer {
         //else if(max_p1 < max_p2) { System.out.println("p2 is winning " + max_p2 + " a " + max_p1); }
         //else if(max_p1 == max_p2) { System.out.println("draw"); }
 
-        return (Math.atan(max_p2) - Math.atan(max_p1)) / (Math.PI / 2);  //funzione arcotangente
+        return (max_p2-max_p1) / K;
+        //return (Math.atan(max_p2) - Math.atan(max_p1)) / (Math.PI / 2);  //funzione arcotangente
     }
     
     //tiene in considerazione solo la streak più lunga
@@ -523,7 +524,7 @@ public class CompetitivePlayer  implements MNKPlayer {
 
     private ArrayList<MNKCell> bestCells(MNKBoard B, MNKCellState state) {
 
-        ArrayList<MNKCell> BC = findFreeCells(B, state);
+        ArrayList<MNKCell> BC = findFreeCells1(B);
 
         //nel caso in cui non sia stata trovata nessuna cella vuota popola casualmente BC, inutile con findFreeCells1
         if(BC.size() == 0) {
@@ -559,7 +560,7 @@ public class CompetitivePlayer  implements MNKPlayer {
     }
 
     //riempie BC prendendo le celle libere adiacenti alle ultime 5 mosse;
-    private ArrayList<MNKCell> findFreeCells(MNKBoard B, MNKCellState state) {
+    private ArrayList<MNKCell> findFreeCells(MNKBoard B) {
 
         ArrayList<MNKCell> BC = new ArrayList<MNKCell>();
         MNKCell MC[] = B.getMarkedCells();
@@ -624,7 +625,7 @@ public class CompetitivePlayer  implements MNKPlayer {
     }
 
     //riempie BC prendendo le celle libere con celle occupate adiacenti;
-    private ArrayList<MNKCell> findFreeCells1(MNKBoard B, MNKCellState state) {
+    private ArrayList<MNKCell> findFreeCells1(MNKBoard B) {
 
         ArrayList<MNKCell> BC = new ArrayList<MNKCell>();
         MNKCell FC[] = B.getFreeCells(); 
