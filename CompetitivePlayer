@@ -146,7 +146,7 @@ public class CompetitivePlayer  implements MNKPlayer {
             }
         }
 
-        return eval;
+        return eval;        //- (4-depth)/10;     //4 è la prfondità massima
     }
 
     private double evaluation(MNKBoard B) {     //verifica solo la sequenza più lunga non se è stata già bloccata o no (futura implementazione)
@@ -160,7 +160,7 @@ public class CompetitivePlayer  implements MNKPlayer {
         //else if(max_p1 < max_p2) { System.out.println("p2 is winning " + max_p2 + " a " + max_p1); }
         //else if(max_p1 == max_p2) { System.out.println("draw"); }
 
-        return (max_p2-max_p1) / K;
+        return (max_p2-max_p1) / 2*K;
         //return (Math.atan(max_p2) - Math.atan(max_p1)) / (Math.PI / 2);  //funzione arcotangente
     }
     
@@ -533,6 +533,17 @@ public class CompetitivePlayer  implements MNKPlayer {
             BC.add(B.getFreeCells()[rand.nextInt(B.getFreeCells().length)]);
         }
 
+        //cerca una mossa per fare una trappola
+        /*for(int i=0; i < BC.size(); i++) {
+            B.markCell(BC.get(i).i, BC.get(i).j);
+            MNKCell c = BC.get(i);
+            if(itsATrap(B)) {   //se la trova le da la massima priorità
+                BC.set(i, BC.get(0));
+                BC.set(0, c);
+            }
+            B.unmarkCell();
+        }*/
+
         //cerca una mossa per vincere
         for(int i=0; i < BC.size(); i++) {
             if(B.markCell(BC.get(i).i, BC.get(i).j) == myWin) { //se la trova le da la massima priorità
@@ -551,6 +562,57 @@ public class CompetitivePlayer  implements MNKPlayer {
         return BC;
     }
 
+/*  //verifica se marcando una cella si crea una trappola
+    private boolean itsATrap(MNKBoard B) {
+        boolean f = false;
+        int d = B.getFreeCells().length;
+        int p1 = rand.nextInt(d); 
+		MNKCell c = B.getFreeCells()[p1]; // 1 mossa avversaria
+		B.markCell(c.i,c.j);    d--;
+
+        int v = 0;
+        for(int i=0; i < d; i++) {
+            if(B.markCell(B.getFreeCells()[i].i, B.getFreeCells()[i].j) == myWin) { 
+                v++;
+            }
+            B.unmarkCell();
+        }
+        B.unmarkCell();     d++;
+        if(v >= 2) f = true;   
+        
+        int p2 = rand.nextInt(d); 
+        while(p1 == p2) p2 = rand.nextInt(d);
+        c = B.getFreeCells()[p2];  // 2 mossa avversaria
+        B.markCell(c.i,c.j);    d--;
+
+        v = 0;
+        for(int i=0; i < d; i++) {
+            if(B.markCell(B.getFreeCells()[i].i, B.getFreeCells()[i].j) == myWin) { 
+                v++;
+            }
+            B.unmarkCell();
+        }
+        B.unmarkCell();     d++;
+        if(v >= 2) f = true;
+
+        int p3 = rand.nextInt(d); 
+        while(p1 == p3 || p2 == p3) p3 = rand.nextInt(d);
+        c = B.getFreeCells()[p3];  // 3 mossa avversaria
+        B.markCell(c.i,c.j);    d--;
+
+        v = 0;
+        for(int i=0; i < d; i++) {
+            if(B.markCell(B.getFreeCells()[i].i, B.getFreeCells()[i].j) == myWin) { 
+                v++;
+            }
+            B.unmarkCell();
+        }
+        B.unmarkCell();
+        if(v >= 2) f = true;
+
+        return f;
+    }
+*/
     //verifica che una cella di coordinate m, n non sia già presente nell'array
     private boolean isntAlready(ArrayList<MNKCell> A, int m, int n) {
         for(int i=0; i < A.size(); i++) {
