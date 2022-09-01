@@ -29,6 +29,7 @@ public class HelpfulPlayer implements MNKPlayer {
 
 	public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
 		long start = System.currentTimeMillis();
+
 		if(MC.length > 0) {
 			MNKCell c = MC[MC.length-1]; // Recover the last move from MC
 			B.markCell(c.i,c.j);         // Save the last move in the local MNKBoard
@@ -89,6 +90,7 @@ public class HelpfulPlayer implements MNKPlayer {
 		}
 		B.unmarkCell();	
 
+		//helpfulness
 		int weight[] = new int[FC.length];
 
 		for(int i=0; i < FC.length; i++) {
@@ -171,7 +173,7 @@ public class HelpfulPlayer implements MNKPlayer {
 		int oc = 0;
 
 		for(int i=c.i+1; i < M; i++) {
-			if(B.B[c.i][i] == MNKCellState.FREE) fc++;
+			if(B.B[i][c.i] == MNKCellState.FREE) fc++;
 			if(isMe) {
 				if(B.B[i][c.j] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
 					fc++;
@@ -210,19 +212,97 @@ public class HelpfulPlayer implements MNKPlayer {
 	}
 
 	private int countDiagonal(MNKBoard B, MNKCell c, boolean first, boolean isMe) {
-		return 0;
+		int fc = 0;
+		int oc = 0;
+
+		int i = 1;
+		while(c.i+i < M && c.j+i < N) {
+			if(B.B[c.i+i][c.j+i] == MNKCellState.FREE) fc++;
+			if(isMe) {
+				if(B.B[c.i+i][c.j+i] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
+					fc++;
+					oc++;
+				}
+				else break;
+			}
+			else {
+				if(B.B[c.i+i][c.j+i] == ((first) ? MNKCellState.P2 : MNKCellState.P1)) {
+					fc++;
+					oc++;
+				}
+				else break;
+			}
+			i++;
+		}
+		i = 1;
+		while(c.i-i >= 0 && c.j-i >= 0) {
+			if(B.B[c.i-i][c.j-i] == MNKCellState.FREE) fc++;
+			if(isMe) {
+				if(B.B[c.i-i][c.j-i] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
+					fc++;
+					oc++;
+				}
+				else break;
+			}
+			else {
+				if(B.B[c.i-i][c.j-i] == ((first) ? MNKCellState.P2 : MNKCellState.P1)) {
+					fc++;
+					oc++;
+				}
+				else break;
+			}
+			i++;
+		}
+
+		if(fc >= K) return 1 + oc;
+		else return 0;
 	}
 
 	private int countAntiDiagonal(MNKBoard B, MNKCell c, boolean first, boolean isMe) {
-		return 0;
-	}
-/*
-	private boolean isDiagonal(MNKCell c) {
-		if(c.i >= M-k+1 &&  c.j < k-(M-c.i)-1  || c.i)
+		int fc = 0;
+		int oc = 0;
+
+		int i = 1;
+		while(c.i-i >= 0 && c.j+i < N) {
+			if(B.B[c.i-i][c.j+i] == MNKCellState.FREE) fc++;
+			if(isMe) {
+				if(B.B[c.i-i][c.j+i] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
+					fc++;
+					oc++;
+				}
+				else break;
+			}
+			else {
+				if(B.B[c.i-i][c.j+i] == ((first) ? MNKCellState.P2 : MNKCellState.P1)) {
+					fc++;
+					oc++;
+				}
+				else break;
+			}
+			i++;
+		}
+		i = 1;
+		while(c.i+i < M && c.j-i >= 0) {
+			if(B.B[c.i+i][c.j-i] == MNKCellState.FREE) fc++;
+			if(isMe) {
+				if(B.B[c.i+i][c.j-i] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
+					fc++;
+					oc++;
+				}
+				else break;
+			}
+			else {
+				if(B.B[c.i+i][c.j-i] == ((first) ? MNKCellState.P2 : MNKCellState.P1)) {
+					fc++;
+					oc++;
+				}
+				else break;
+			}
+			i++;
+		}
+
+		if(fc >= K) return 1 + oc;
+		else return 0;
 	}
 
-	private boolean isAntiDiagonal(MNKCell c) {
-
-	}
- */	
 }
