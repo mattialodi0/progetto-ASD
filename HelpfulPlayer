@@ -3,7 +3,7 @@ package mnkgame;
 import java.util.Random;
 
 
-public class HelpfulPlayer1 implements MNKPlayer {
+public class HelpfulPlayer implements MNKPlayer {
 	private Random rand;
 	private MNKBoard B;
 	private MNKGameState myWin;
@@ -13,7 +13,7 @@ public class HelpfulPlayer1 implements MNKPlayer {
 	private boolean first;
 
 	
-	public HelpfulPlayer1() {
+	public HelpfulPlayer() {
 	}
 
 
@@ -133,7 +133,7 @@ public class HelpfulPlayer1 implements MNKPlayer {
 		int fc = 0;
 		int oc = 0;
 
-		for(int i=c.i; i < M; i++) {
+		for(int i=c.j; i < N; i++) {
 			if(B.B[c.i][i] == MNKCellState.FREE) fc++;
 			if(isMe) {
 				if(B.B[c.i][i] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
@@ -150,7 +150,7 @@ public class HelpfulPlayer1 implements MNKPlayer {
 				else break;
 			}
 		}
-		for(int i=c.i-1; i >= 0; i--) {
+		for(int i=c.j-1; i >= 0; i--) {
 			if(B.B[c.i][i] == MNKCellState.FREE) fc++;
 			if(isMe) {
 				if(B.B[c.i][i] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
@@ -177,7 +177,7 @@ public class HelpfulPlayer1 implements MNKPlayer {
 		int oc = 0;
 
 		for(int i=c.i; i < M; i++) {
-			if(B.B[i][c.i] == MNKCellState.FREE) fc++;
+			if(B.B[i][c.j] == MNKCellState.FREE) fc++;
 			if(isMe) {
 				if(B.B[i][c.j] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
 					fc++;
