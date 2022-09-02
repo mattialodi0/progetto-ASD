@@ -16,7 +16,6 @@ public class HelpfulPlayer implements MNKPlayer {
 	public HelpfulPlayer() {
 	}
 
-
 	public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
 		rand    = new Random(System.currentTimeMillis()); 
 		B       = new MNKBoard(M,N,K);
