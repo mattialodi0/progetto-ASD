@@ -16,6 +16,7 @@ public class HelpfulPlayer implements MNKPlayer {
 	public HelpfulPlayer() {
 	}
 
+
 	public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
 		rand    = new Random(System.currentTimeMillis()); 
 		B       = new MNKBoard(M,N,K);
@@ -117,14 +118,12 @@ public class HelpfulPlayer implements MNKPlayer {
 
 	private int helpfullness(MNKBoard B, MNKCell c, boolean first, boolean isMe) {
 		int h = 0;
-        B.markCell(c.i,  c.j);
 
 		h += countRow(B, c, first, isMe);
 		h += countColumn(B, c, first, isMe);
 		if(true)  h += countDiagonal(B, c, first, isMe);		//isDiagonal(c)
 		if(true) h += countAntiDiagonal(B, c, first, isMe);		//isAntiDiagonal(c)
 
-        B.unmarkCell();
 		return h;
 	}
 
@@ -132,7 +131,7 @@ public class HelpfulPlayer implements MNKPlayer {
 		int fc = 0;
 		int oc = 0;
 
-		for(int i=c.j; i < N; i++) {
+		for(int i=c.j+1; i < N; i++) {
 			if(B.B[c.i][i] == MNKCellState.FREE) fc++;
 			else if(isMe) {
 				if(B.B[c.i][i] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
@@ -151,7 +150,7 @@ public class HelpfulPlayer implements MNKPlayer {
 		}
 		for(int i=c.j-1; i >= 0; i--) {
 			if(B.B[c.i][i] == MNKCellState.FREE) fc++;
-			if(isMe) {
+			else if(isMe) {
 				if(B.B[c.i][i] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
 					fc++;
 					oc++;
@@ -167,6 +166,9 @@ public class HelpfulPlayer implements MNKPlayer {
 			}
 		}
 
+        if(isMe) {
+            oc++; fc++;
+        }
 		if(fc >= K) return 1 + oc;
 		else return 0;
 	}
@@ -175,7 +177,7 @@ public class HelpfulPlayer implements MNKPlayer {
 		int fc = 0;
 		int oc = 0;
 
-		for(int i=c.i; i < M; i++) {
+		for(int i=c.i+1; i < M; i++) {
 			if(B.B[i][c.j] == MNKCellState.FREE) fc++;
 			else if(isMe) {
 				if(B.B[i][c.j] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
@@ -210,6 +212,9 @@ public class HelpfulPlayer implements MNKPlayer {
 			}
 		}
 
+        if(isMe) {
+            oc++; fc++;
+        }
 		if(fc >= K) return 1 + oc;
 		else return 0;
 	}
@@ -218,7 +223,7 @@ public class HelpfulPlayer implements MNKPlayer {
 		int fc = 0;
 		int oc = 0;
 
-		int i = 0;
+		int i = 1;
 		while(c.i+i < M && c.j+i < N) {
 			if(B.B[c.i+i][c.j+i] == MNKCellState.FREE) fc++;
 			else if(isMe) {
@@ -257,6 +262,9 @@ public class HelpfulPlayer implements MNKPlayer {
 			i++;
 		}
 
+        if(isMe) {
+            oc++; fc++;
+        }
 		if(fc >= K) return 1 + oc;
 		else return 0;
 	}
@@ -265,7 +273,7 @@ public class HelpfulPlayer implements MNKPlayer {
 		int fc = 0;
 		int oc = 0;
 
-		int i = 0;
+		int i = 1;
 		while(c.i-i >= 0 && c.j+i < N) {
 			if(B.B[c.i-i][c.j+i] == MNKCellState.FREE) fc++;
 			else if(isMe) {
@@ -304,6 +312,9 @@ public class HelpfulPlayer implements MNKPlayer {
 			i++;
 		}
 
+        if(isMe) {
+            oc++; fc++;
+        }
 		if(fc >= K) return 1 + oc;
 		else return 0;
 	}
