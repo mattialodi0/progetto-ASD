@@ -59,24 +59,24 @@ public class MiniMax  implements MNKPlayer {
 
         for(int j=0; j < results.length; j++) {
             B.markCell(FC[j].i, FC[j].j);
-            results[j] = MiniMaxf(B, !first);
+            results[j] = MiniMaxf(B, first);
             B.unmarkCell();
-
         }
         if(first) {            
-            double max = -1000;
+            double min = 1000; 
             for(int j=0; j < results.length; j++) {
-                if(results[j] >= max) {
-                   max = results[j];
+                if(results[j] <= min) {
+                   min = results[j];
                   index = j;
                 }
             }
         }
         else {
-            double min = 1000; 
+            
+            double max = -1000;
             for(int j=0; j < results.length; j++) {
-                if(results[j] <= min) {
-                   min = results[j];
+                if(results[j] >= max) {
+                   max = results[j];
                   index = j;
                 }
             }
@@ -96,15 +96,15 @@ public class MiniMax  implements MNKPlayer {
         double eval = 0.0;
 
         if(MNKGameState.WINP1 == B.gameState() ) {  
-            eval = 1;                                    
+            eval = -1;                                    
         }
         else if(MNKGameState.WINP2 == B.gameState()) {
-            eval = -1;
+            eval = 1;
         }
         else if(MNKGameState.DRAW == B.gameState()) {
             eval = 0;
         }
-        else if(first_player) {
+        else if(first_player) {     //B.currentPlayer()==0  //first_player
             eval = -1000;
             //va per ricorsione
             for(MNKCell c : B.getFreeCells()) { 
