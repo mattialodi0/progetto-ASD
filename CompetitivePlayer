@@ -141,8 +141,9 @@ public class CompetitivePlayer  implements MNKPlayer {
         }
         else if(first_player) {     //B.currentPlayer()==0  //first_player
             eval = -1000;
+			ArrayList<MNKCell> BC = bestCells(B);
             //va per ricorsione
-            for(MNKCell c : B.getFreeCells()) { 
+            for(MNKCell c : BC) { 
                 B.markCell(c.i, c.j);
                 eval = Math.max(eval, AlphaBeta(B, false, a, b, depth-1));
                 B.unmarkCell();
@@ -152,8 +153,9 @@ public class CompetitivePlayer  implements MNKPlayer {
         }
         else {
             eval = 1000;
+			ArrayList<MNKCell> BC = bestCells(B);
             //va per ricorsione
-            for(MNKCell c : B.getFreeCells()) { 
+            for(MNKCell c : BC) { 
                 B.markCell(c.i, c.j);
                 eval = Math.min(eval, AlphaBeta(B, true, a, b, depth-1));
                 B.unmarkCell();
@@ -168,8 +170,6 @@ public class CompetitivePlayer  implements MNKPlayer {
     //helpfulness
     private double evaluationH(MNKBoard B) {
         MNKCell FC[] = B.getFreeCells();
-        
-        //helpfulness
 		int weight[] = new int[FC.length];
 
 		for(int i=0; i < FC.length; i++) {
@@ -189,7 +189,7 @@ public class CompetitivePlayer  implements MNKPlayer {
     }
     
     //evaluate o evaluatep
-    private double evaluation(MNKBoard B) {     //verifica solo la sequenza più lunga non se è stata già bloccata o no (futura implementazione)
+    private double evaluation(MNKBoard B) {     
         double max_p1 = 0;
         double max_p2 = 0;
 
