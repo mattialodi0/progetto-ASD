@@ -55,18 +55,30 @@ public class CompetitivePlayer  implements MNKPlayer {
             return FC[0];
 		}
 
-        //controllo iterazioni max
+        //controllo timeout
         final int cells_num = M*N;
         final int cost = 50;
-        timeout = cost + (9*49.0)/cells_num;     //assumendo che il minimo di M*N sia 3*3, 
-
+        timeout = cost + (9*49.0)/cells_num;     //assumendo che il minimo di M*N sia 3*3
         
-        final int max_depth = 5;        //con evalutateH e una profondità di 5 si hanno buone prestazioni
+		//controllo iterazioni max
+        int max_depth = 9;        
+		if(cells_num <= 12) max_depth = cells_num;
+		//else if(cells_num <= 14)  max_depth = 10;	
+		//else if(cells_num <= 18)  max_depth = 9;	
+		else if(cells_num <= 20)  max_depth = 8;
+		else if(cells_num <= 28)  max_depth = 7;
+		else if(cells_num <= 44)  max_depth = 6;
+		else if(cells_num <= 50)  max_depth = 5;
+		else if(cells_num <= 600)  max_depth = 4;
+		else if(cells_num <= 3000)  max_depth = 3;
+		else if(cells_num > 3000)  max_depth = 2;
+
         final double min_a = -1.0;
         final double max_b = 1.0;
         int index = 0;
         ArrayList<MNKCell> BC = bestCells(B);
 
+		//iterative deepening
         for(int i=0; i < max_depth; i++) {
             //timeout
             if((System.currentTimeMillis()-start)/1000.0 > TIMEOUT*(timeout/100.0)) break;
@@ -78,7 +90,7 @@ public class CompetitivePlayer  implements MNKPlayer {
                 results[j] = AlphaBeta(B, first, min_a, max_b, i);
                 B.unmarkCell();
 
-                if((results[j] == (first ? -1 : 1))) {  //(first) ? results[j] == -1 : results[j] == 1 //caso di vittoria immediata, 
+                if((results[j] == (first ? -1 : 1))) {  	//caso di vittoria immediata, 
                     B.markCell(BC.get(j).i, BC.get(j).j);                                                               
                     return BC.get(j);
                 }
