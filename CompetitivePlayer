@@ -17,6 +17,7 @@ public class CompetitivePlayer  implements MNKPlayer {
     private boolean first;
     private long start;
     private double timeout;
+    private int max_depth;
 
 	public CompetitivePlayer() {
 	}
@@ -33,6 +34,24 @@ public class CompetitivePlayer  implements MNKPlayer {
 		TIMEOUT = timeout_in_secs;
         this.first = first;
         this.start = 0;
+
+        //controllo timeout
+        final int cells_num = M*N;
+        final int cost = 50;
+        timeout = cost + (9*49.0)/cells_num;     //assumendo che il minimo di M*N sia 3*3
+        
+		//controllo iterazioni max
+        max_depth = 5;        
+		if(cells_num <= 12) max_depth = cells_num;
+		//else if(cells_num <= 14)  max_depth = 10;	
+		//else if(cells_num <= 18)  max_depth = 9;	
+		else if(cells_num <= 20)  max_depth = 8;
+		else if(cells_num <= 28)  max_depth = 7;
+		else if(cells_num <= 44)  max_depth = 6;
+		else if(cells_num <= 50)  max_depth = 5;
+		else if(cells_num <= 600)  max_depth = 4;
+		else if(cells_num <= 3000)  max_depth = 3;
+		else if(cells_num > 3000)  max_depth = 2;
 	}
 
     public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
@@ -52,36 +71,20 @@ public class CompetitivePlayer  implements MNKPlayer {
         }
 
         if(FC.length == 1) {
+            //se rimane solo una mossa la fa direttamente
             return FC[0];
 		}
 
-        //controllo timeout
-        final int cells_num = M*N;
-        final int cost = 50;
-        timeout = cost + (9*49.0)/cells_num;     //assumendo che il minimo di M*N sia 3*3
-        
-		//controllo iterazioni max
-        int max_depth = 9;        
-		if(cells_num <= 12) max_depth = cells_num;
-		//else if(cells_num <= 14)  max_depth = 10;	
-		//else if(cells_num <= 18)  max_depth = 9;	
-		else if(cells_num <= 20)  max_depth = 8;
-		else if(cells_num <= 28)  max_depth = 7;
-		else if(cells_num <= 44)  max_depth = 6;
-		else if(cells_num <= 50)  max_depth = 5;
-		else if(cells_num <= 600)  max_depth = 4;
-		else if(cells_num <= 3000)  max_depth = 3;
-		else if(cells_num > 3000)  max_depth = 2;
 
+        //iterative deepening
         final double min_a = -1.0;
         final double max_b = 1.0;
         int index = 0;
         ArrayList<MNKCell> BC = bestCells(B);
 
-		//iterative deepening
         for(int i=0; i < max_depth; i++) {
-            //timeout
-            if((System.currentTimeMillis()-start)/1000.0 > TIMEOUT*(timeout/100.0)) break;
+            if(timeIsOut()) 
+                break;
 
             double[] results = new double[BC.size()];
 
@@ -94,8 +97,7 @@ public class CompetitivePlayer  implements MNKPlayer {
                     B.markCell(BC.get(j).i, BC.get(j).j);                                                               
                     return BC.get(j);
                 }
-                //timeout
-			    if((System.currentTimeMillis()-start)/1000.0 > TIMEOUT*(timeout/100.0)) {
+			    if(timeIsOut())  {
                     //B.markCell(BC.get(index).i, BC.get(index).j);
                     //return BC.get(index);
                     break;
@@ -134,8 +136,7 @@ public class CompetitivePlayer  implements MNKPlayer {
 
     private double AlphaBeta(MNKBoard B, boolean first_player, double a, double b, int depth) {
         double eval = 0.0;
-        //timeout - ritorna evaluation
-        if((System.currentTimeMillis()-start)/1000.0 > TIMEOUT*(timeout/100.0)) {
+        if(timeIsOut()) {
             return evaluation(B);
         }
 
@@ -176,349 +177,32 @@ public class CompetitivePlayer  implements MNKPlayer {
             }
         }
 
-        return eval;        //- (4-depth)/10;     //4 è la prfondità massima
+        return eval;        
     }
 
-    //helpfulness
-    private double evaluationH(MNKBoard B) {
-        MNKCell FC[] = B.getFreeCells();
-		int weight[] = new int[FC.length];
-
-		for(int i=0; i < FC.length; i++) {
-			weight[i] = helpfullness(B, FC[i], first, true) + helpfullness(B, FC[i], first, false);
-		}
-		
-		int max = -1000;	//-INF
-		int l = 0;
-		for(int i=0; i < FC.length; i++) {
-			if(weight[i] > max) {
-				max = weight[i];
-				l = i;
-			}
-		}
-
-		return (Math.atan(max)) / (Math.PI / 2);
+    //ritorna true se il tempo sta per scadere
+    private boolean timeIsOut() {
+        if((System.currentTimeMillis()-start)/1000.0 > TIMEOUT*(timeout/100.0))
+            return true;
+        else 
+            return false;
     }
-    
-    //evaluate o evaluatep
+
+   
+    //ritorna un valore compreso tra -1 e 1 in base a chi sta vincendo,
+    //valutando chi ha più pezzi in fila
     private double evaluation(MNKBoard B) {     
         double max_p1 = 0;
         double max_p2 = 0;
 
-        max_p1 = evaluatep(B.B, MNKCellState.P1);
-        max_p2 = evaluatep(B.B, MNKCellState.P2);
+        max_p1 = evaluate(B.B, MNKCellState.P1);
+        max_p2 = evaluate(B.B, MNKCellState.P2);
 
         return (Math.atan(max_p2) - Math.atan(max_p1)) / (Math.PI / 2);  //funzione arcotangente
     }
-
-    
-	private int helpfullness(MNKBoard B, MNKCell c, boolean first, boolean isMe) {
-		int h = 0;
-
-		h += countRow(B, c, first, isMe);
-		h += countColumn(B, c, first, isMe);
-		if(true)  h += countDiagonal(B, c, first, isMe);		//isDiagonal(c)
-		if(true) h += countAntiDiagonal(B, c, first, isMe);		//isAntiDiagonal(c)
-
-		return h;
-	}
-
-	private int countRow(MNKBoard B, MNKCell c, boolean first, boolean isMe) {
-		int fc = 0;
-		int oc = 0;
-
-		for(int i=c.j+1; i < N; i++) {
-			if(B.B[c.i][i] == MNKCellState.FREE) fc++;
-			else if(isMe) {
-				if(B.B[c.i][i] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-			else {
-				if(B.B[c.i][i] == ((first) ? MNKCellState.P2 : MNKCellState.P1)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-		}
-		for(int i=c.j-1; i >= 0; i--) {
-			if(B.B[c.i][i] == MNKCellState.FREE) fc++;
-			else if(isMe) {
-				if(B.B[c.i][i] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-			else {
-				if(B.B[c.i][i] == ((first) ? MNKCellState.P2 : MNKCellState.P1)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-		}
-
-        if(isMe) {
-            oc++; fc++;
-        }
-		if(fc >= K) return 1 + oc;
-		else return 0;
-	}
-	private int countColumn(MNKBoard B, MNKCell c, boolean first, boolean isMe) {
-		int fc = 0;
-		int oc = 0;
-
-		for(int i=c.i+1; i < M; i++) {
-			if(B.B[i][c.j] == MNKCellState.FREE) fc++;
-			else if(isMe) {
-				if(B.B[i][c.j] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-			else {
-				if(B.B[i][c.j] == ((first) ? MNKCellState.P2 : MNKCellState.P1)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-		}
-		for(int i=c.i-1; i >= 0; i--) {
-			if(B.B[i][c.j] == MNKCellState.FREE) fc++;
-			if(isMe) {
-				if(B.B[i][c.j] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-			else {
-				if(B.B[i][c.j] == ((first) ? MNKCellState.P2 : MNKCellState.P1)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-		}
-
-        if(isMe) {
-            oc++; fc++;
-        }
-		if(fc >= K) return 1 + oc;
-		else return 0;
-	}
-	private int countDiagonal(MNKBoard B, MNKCell c, boolean first, boolean isMe) {
-		int fc = 0;
-		int oc = 0;
-
-		int i = 1;
-		while(c.i+i < M && c.j+i < N) {
-			if(B.B[c.i+i][c.j+i] == MNKCellState.FREE) fc++;
-			else if(isMe) {
-				if(B.B[c.i+i][c.j+i] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-			else {
-				if(B.B[c.i+i][c.j+i] == ((first) ? MNKCellState.P2 : MNKCellState.P1)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-			i++;
-		}
-		i = 1;
-		while(c.i-i >= 0 && c.j-i >= 0) {
-			if(B.B[c.i-i][c.j-i] == MNKCellState.FREE) fc++;
-			else if(isMe) {
-				if(B.B[c.i-i][c.j-i] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-			else {
-				if(B.B[c.i-i][c.j-i] == ((first) ? MNKCellState.P2 : MNKCellState.P1)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-			i++;
-		}
-
-        if(isMe) {
-            oc++; fc++;
-        }
-		if(fc >= K) return 1 + oc;
-		else return 0;
-	}
-	private int countAntiDiagonal(MNKBoard B, MNKCell c, boolean first, boolean isMe) {
-		int fc = 0;
-		int oc = 0;
-
-		int i = 1;
-		while(c.i-i >= 0 && c.j+i < N) {
-			if(B.B[c.i-i][c.j+i] == MNKCellState.FREE) fc++;
-			else if(isMe) {
-				if(B.B[c.i-i][c.j+i] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-			else {
-				if(B.B[c.i-i][c.j+i] == ((first) ? MNKCellState.P2 : MNKCellState.P1)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-			i++;
-		}
-		i = 1;
-		while(c.i+i < M && c.j-i >= 0) {
-			if(B.B[c.i+i][c.j-i] == MNKCellState.FREE) fc++;
-			else if(isMe) {
-				if(B.B[c.i+i][c.j-i] == ((first) ? MNKCellState.P1 : MNKCellState.P2)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-			else {
-				if(B.B[c.i+i][c.j-i] == ((first) ? MNKCellState.P2 : MNKCellState.P1)) {
-					fc++;
-					oc++;
-				}
-				else break;
-			}
-			i++;
-		}
-
-        if(isMe) {
-            oc++; fc++;
-        }
-		if(fc >= K) return 1 + oc;
-		else return 0;
-	}
-
-    
-    private double evaluate(MNKCellState[][] B, MNKCellState state) {
-        int u_max = 0;
-        int u = 0;
-
-        //controllo delle colonne
-        for(int k=0; k < N; k++) {
-            for(int h=0; h < M; h++) {
-                if(B[h][k] == state) {
-                    u++;
-                    u_max = Math.max(u, u_max);
-                }
-                else {
-                    u = 0;
-                }
-            }
-            u = 0;
-        }
-
-        //controllo delle righe
-        for(int k=0; k < M; k++) {
-            for(int h=0; h < N; h++) {
-                if(B[k][h] == state) {
-                    u++;
-                    u_max = Math.max(u, u_max);
-                    }
-                else {
-                    u = 0;
-                }
-            }
-            u = 0;
-        }
-            
-        //CONTROLLO DIAGONALE 
-        for (int j = 0; j<N; j++) { // MATRICE TRIANGOLARE SUPERIORE
-        	int l = 0;
-        	while (l<M && j+l<N) {
-        		if (l==0) {
-        			u = 0;
-        		}
-        		if (B[l][j+l] == state) {
-        			u++;
-        			u_max = Math.max(u, u_max);
-        		}
-        		else {
-        			u=0;
-        		}
-        		l++;
-        	}
-        }
-        for (int i = 1; i<M; i++) { // MATRICE TRIANGOLARE INFERIORE
-        	int l=0;
-        	while (l<N && i+l<M) {
-        		if (l==0) {
-        			u=0;
-        		}
-        		if (B[i+l][l] == state) {
-        			u++;
-        			u_max = Math.max(u, u_max);
-        		}
-        		else {
-        			u=0;
-        		}
-        		l++;
-        	}
-        }
-
-     	// CONTROLLO ANTI-DIAGONALE
-        for (int j = N; j>0; j--) { // MATRICE TRIANGOLARE SUPERIORE (ANTI)
-        	int l = 0;
-        	while (l<M && j-l>0) {
-        		if (l==0) {
-        			u=0;
-        		}
-        		if (B[l][j-l-1] == state) {
-        			u++;
-        			u_max = Math.max(u, u_max);
-        		}
-        		else {
-        			u=0;
-        		}
-        		l++;
-        	}
-        }
-        for (int i = 1; i<M; i++) { // MATRICE TRIANGOLARE INFERIORE (ANTI)
-        	int l = 0;
-        	while (l+i<M && N-l>0) {
-        		if (l==0) {
-        			u = 0;
-        		}
-        		if (B[i+l][N-l-1] == state) {
-        			u++;
-        			u_max = Math.max(u, u_max);
-        		}
-        		else {
-        			u=0;
-        		}
-        		l++;
-        	}
-        }
-        
-
-        return (double)u_max;
-    }
-
+   
     //considera anche se è stata bloccata o meno
-    private double evaluatep(MNKCellState[][] B, MNKCellState state) {
+    private double evaluate(MNKCellState[][] B, MNKCellState state) {
         double u_max = 0;
         double u = 0;
         double m1=1.0;
@@ -770,17 +454,6 @@ public class CompetitivePlayer  implements MNKPlayer {
         return u_max;
     }
 
-    private ArrayList<MNKCell> bestCells0(MNKBoard B) {
-        ArrayList<MNKCell> BC = new ArrayList<MNKCell>();
-        MNKCell FC[] = B.getFreeCells();
-
-        for(int i=0; i < FC.length; i++) {
-            BC.add(FC[i]);
-        }
-
-        return BC;
-    }
-
     private ArrayList<MNKCell> bestCells(MNKBoard B) {
 
         ArrayList<MNKCell> BC = findFreeCells(B);
@@ -802,21 +475,10 @@ public class CompetitivePlayer  implements MNKPlayer {
             B.unmarkCell();
         }
 
-        //ordina le altre mosse
-        //..........
-
         return BC;
     }
 
-    //verifica che una cella di coordinate m, n non sia già presente nell'array
-    private boolean isntAlready(ArrayList<MNKCell> A, int m, int n) {
-        for(int i=0; i < A.size(); i++) {
-            if(A.get(i).i == m && A.get(i).j == n) return false;
-        }
-        return true;
-    }
-
-    //riempie BC prendendo le celle libere adiacenti alle ultime 5 mosse;
+    //riempie BC prendendo le celle libere adiacenti alle ultime 10 mosse;
     private ArrayList<MNKCell> findFreeCells(MNKBoard B) {
 
         ArrayList<MNKCell> BC = new ArrayList<MNKCell>();
@@ -880,68 +542,13 @@ public class CompetitivePlayer  implements MNKPlayer {
 
         return BC;
     }
-
-    //riempie BC prendendo le celle libere con celle occupate adiacenti;
-    private ArrayList<MNKCell> findFreeCells1(MNKBoard B) {
-
-        ArrayList<MNKCell> BC = new ArrayList<MNKCell>();
-        MNKCell FC[] = B.getFreeCells(); 
-        MNKCell MC[] = B.getMarkedCells(); 
-      
-        for(MNKCell d : FC) {
-            if(hasMarkedCellCloseBy(MC, d)) {
-                if(isntAlready(BC, d.i, d.j)){
-                    BC.add(d);
-                }
-            }
-        } 
-
-        return BC;
+    
+    //verifica che una cella di coordinate m, n non sia già presente nell'array dinamico
+    private boolean isntAlready(ArrayList<MNKCell> A, int m, int n) {
+        for(int i=0; i < A.size(); i++) {
+            if(A.get(i).i == m && A.get(i).j == n) return false;
+        }
+        return true;
     }
 
-    private boolean hasMarkedCellCloseBy(MNKCell MC[], MNKCell c) {
-
-        if(c.i+1 < M && c.j+1 < N) {
-            for(MNKCell d : MC) {
-                if(d.i == c.i+1 && d.j == c.j+1) return true;
-            }
-        }
-        if(c.i+1 < M) {
-            for(MNKCell d : MC) {
-                if(d.i == c.i+1 && d.j == c.j) return true;
-            }
-        }
-        if(c.i+1 < M && c.j-1 > 0) {
-            for(MNKCell d : MC) {
-                if(d.i == c.i+1 && d.j == c.j-1) return true;
-            }
-        }
-        if(c.j-1 > 0) {
-            for(MNKCell d : MC) {
-                if(d.i == c.i && d.j == c.j-1) return true;
-            }
-        }
-        if(c.i-1 > 0 && c.j-1 > 0) {
-            for(MNKCell d : MC) {
-                if(d.i == c.i-1 && d.j == c.j-1) return true;
-            }
-        }
-        if(c.i-1 > 0) {
-            for(MNKCell d : MC) {
-                if(d.i == c.i-1 && d.j == c.j) return true;
-            }
-        }
-        if(c.i-1 > 0 && c.j+1 < M) {
-            for(MNKCell d : MC) {
-                if(d.i == c.i-1 && d.j == c.j+1) return true;
-            }
-        }
-        if(c.j+1 < M) {
-            for(MNKCell d : MC) {
-                if(d.i == c.i && d.j == c.j+1) return true;
-            }
-        }
-
-		return false;	
-    }
 }
