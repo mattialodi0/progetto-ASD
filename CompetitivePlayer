@@ -45,9 +45,9 @@ public class CompetitivePlayer  implements MNKPlayer {
 		if(cells_num <= 12) max_depth = cells_num;
 		//else if(cells_num <= 14)  max_depth = 10;	
 		//else if(cells_num <= 18)  max_depth = 9;	
-		else if(cells_num <= 20)  max_depth = 8;
-		else if(cells_num <= 28)  max_depth = 7;
-		else if(cells_num <= 44)  max_depth = 6;
+		//else if(cells_num <= 20)  max_depth = 8;
+		else if(cells_num <= 20)  max_depth = 7;
+		else if(cells_num <= 30)  max_depth = 6;
 		else if(cells_num <= 50)  max_depth = 5;
 		else if(cells_num <= 600)  max_depth = 4;
 		else if(cells_num <= 3000)  max_depth = 3;
@@ -187,7 +187,6 @@ public class CompetitivePlayer  implements MNKPlayer {
         else 
             return false;
     }
-
    
     //ritorna un valore compreso tra -1 e 1 in base a chi sta vincendo,
     //valutando chi ha più pezzi in fila
