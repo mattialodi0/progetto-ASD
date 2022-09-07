@@ -44,7 +44,7 @@ private double evaluate(MNKCellState[][] B, MNKCellState state) {
                     }
                 }
                 
-                else if(u!=0 && B[h][k] == MNKCellState.FREE && h+1<N && B[h+1][k] == state) {
+                else if(u!=0 && B[h][k] == MNKCellState.FREE && h+1<M && B[h+1][k] == state) {
                 	u++;
                 	if (m1!=p || m2!=p) {
                     	u_max = Math.max(u*m1*m2, u_max);
@@ -106,6 +106,7 @@ private double evaluate(MNKCellState[][] B, MNKCellState state) {
                     }	
                 }
                 
+                
                 else {
                     u = 0;
                 }
@@ -147,6 +148,7 @@ private double evaluate(MNKCellState[][] B, MNKCellState state) {
                         	u_max = Math.max(u*m1*m2, u_max);
                         	}
      				}
+     				
      				else if(u==0 && B[l][j+l] == MNKCellState.FREE && l>0 && j-l>0 && B[l-1][j+l-1] == state) {
      					u++;
      					if (m1!=p || m2!=p) {
