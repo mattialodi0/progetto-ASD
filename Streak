@@ -1,0 +1,14 @@
+package mnkgame;
+
+public class Streak {
+    public double m1, m2;
+    public double count;
+    public boolean hole;
+
+    public Streak() {
+        m1 = 0.7; 
+        m2 = 0.7;
+        count = 0;
+        hole = false;
+    }
+}
