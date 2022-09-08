@@ -795,7 +795,7 @@ public class CompetitivePlayer  implements MNKPlayer {
 
         return u_max;
     }
-
+    
 	private double evaluate(MNKCellState[][] B, MNKCellState state) {
         double max_rows = evaluateRows(B, state);
         double max_cols = evaluateCols(B, state);
@@ -835,11 +835,6 @@ public class CompetitivePlayer  implements MNKPlayer {
                         if(streak_max.get(h).count > 0) {
                             Streak z = streak_max.get(h);
                             z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
-                        if(j+1 < N && B[i][j+1] == state) {
-                            Streak z = streak_max.get(h);
-                            z.hole = true;
                             streak_max.set(h, z);
                         }
                     } 
@@ -915,11 +910,6 @@ public class CompetitivePlayer  implements MNKPlayer {
                         if(streak_max.get(h).count > 0) {
                             Streak z = streak_max.get(h);
                             z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
-                        if(i+1 < M && B[i+1][j] == state) {
-                            Streak z = streak_max.get(h);
-                            z.hole = true;
                             streak_max.set(h, z);
                         }
                     } 
@@ -998,11 +988,6 @@ public class CompetitivePlayer  implements MNKPlayer {
                             z.m2 = 1;
                             streak_max.set(h, z);
                         }
-                        if((l+1<M && j+l+1<N) && B[l+1][j+l+1] == state) {
-                            Streak z = streak_max.get(h);
-                            z.hole = true;
-                            streak_max.set(h, z);
-                        }
                     } 
                     else {
                         if(streak_max.get(h).count > 0) {
@@ -1057,11 +1042,6 @@ public class CompetitivePlayer  implements MNKPlayer {
                         if(streak_max.get(h).count > 0) {
                             Streak z = streak_max.get(h);
                             z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
-                        if((i+l+1<M && l+1<N) && B[i+l+1][l+1] == state) {
-                            Streak z = streak_max.get(h);
-                            z.hole = true;
                             streak_max.set(h, z);
                         }
                     } 
@@ -1140,11 +1120,6 @@ public class CompetitivePlayer  implements MNKPlayer {
                             z.m2 = 1;
                             streak_max.set(h, z);
                         }
-                        if((l+1<M && j-l-2>0) && B[l+1][j-l-2] == state) {
-                            Streak z = streak_max.get(h);
-                            z.hole = true;
-                            streak_max.set(h, z);
-                        }
                     } 
                     else {
                         if(streak_max.get(h).count > 0) {
@@ -1199,11 +1174,6 @@ public class CompetitivePlayer  implements MNKPlayer {
                         if(streak_max.get(h).count > 0) {
                             Streak z = streak_max.get(h);
                             z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
-                        if((i+l+1<M && N-l-2>=0) && B[i+l+1][N-l-2] == state) {
-                            Streak z = streak_max.get(h);
-                            z.hole = true;
                             streak_max.set(h, z);
                         }
                     } 
