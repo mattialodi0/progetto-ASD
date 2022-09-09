@@ -1,0 +1,195 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Progetto di Algoritmi e Strutture di Dati}
+
+
+
+\author{Salvatore Lervini, Mattia Lodi, Federico Vallese \\ 0001030390,  0001020617,  0000983811}
+
+\date{Settembre 2022}
+
+%\tableofcontents
+
+
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{subfigure}
+\usepackage{caption}
+\usepackage{color}
+\begin{document}
+
+\maketitle
+
+\section{Descrizione del problema e obiettivi}
+Il progetto consiste nella creazione di un giocatore virtuale capace di trovare la strategia ottima data una qualunque configurazione dell'$(M,N,K)-game$ in un arbitrario intervallo temporale.
+L'$(M,N,K)-game$ è la generalizzazione del tris, nel quale i due giocatori, a turno, si sfidano in una matrice di dimensioni $M\times N$ al fine di allineare $K$ simboli uguali orizzontalmente, verticalmente o diagonalmente.
+
+\noindent
+Data la necessità intrinseca del gioco di valutare le possibili mosse future, sia proprie sia avversarie, in maniera efficiente in relazione al limite di tempo, abbiamo ritenuto che l'algoritmo migliore presente in letteratura fosse l'iterative deepening.
+\subsection{L'algoritmo iterative deepening}
+L'\textit{iterative deepening} consiste nell'effetuare varie chiamate dell'algoritmo \textit{AlphaBeta Pruning} con profondità crescente.
+Il principale miglioramento sta nel fatto che tale ricerca può essere interrotta in relazione al tempo disponibile, al termine del quale è restituita l'ultima mossa migliore.
+
+\noindent
+L'\textit{AlphaBeta Pruning} è una versione migliorata dell'algoritmo \textit{MiniMax}, che è un algoritmo ricorsivo per individuare la migliore mossa possibile in un gioco secondo il criterio di minimizzare la massima perdita possibile (il primo giocatore massimizza, l'altro minimizza).
+
+\noindent
+L'algoritmo \textit{MiniMax} è troppo dispendioso di risorse poiché visita sempre l'intero \textit{game tree}(albero che contiene tutte le possibili partite in un gioco a turni) e ciò non è quasi mai possibile in tempi ragionevoli.
+Tale problema viene parzialmente risolto dall'\textit{AlphaBeta Pruning} che, avvalendosi dei coefficienti $\alpha$ e $\beta$, riesce a potare in maniera opportuna alcuni rami dell'albero, riducendo quindi la complessità computazionale.
+
+\newpage
+\section{Scelte progettuali}
+I nostri obiettivi principali sono stati:
+\begin{itemize}
+	\item lavorare su un sottinsieme delle possibili mosse
+	\item definire una funzione capace di valutare la configurazione corrente in relazione a quale giocatore si trovi in vantaggio, tenendo conto del numero massimo (opportunamente pesato) di simboli allineati.
+	\item una gestione accurata delle tempistiche.
+\end{itemize}
+
+\subsection{Funzione BestCell}
+La funzione best cell riduce il numero di celle da dare in input a iterative deepening considerando le eventuali celle libere adiacenti a quelle marcate negli ultimi 10 turni.
+Ci avvaliamo di un array dinamico per la memorizzazione di queste.
+Se il giocatore di cui sta analizzando il turno si trova ad una mossa dalla vittoria la gioca.
+
+
+\subsection{evaluation e evaluate}
+\textit{evaluation} chiama la funzione \textit{evaluate} una volta per il nostro giocatore ed una volta per l'altro al fine di restituire un valore compreso tra $-1$ e $1$ che stia ad indicare qual è il giocatore che si trova in vantaggio.
+Il valore suddetto è ottenuto usando la funzione arcotangente normalizzata poichè questa è monotona crescente e tende ad $1$ al tendere dell'ascissa a $+\infty$.
+
+\noindent
+\textit{evaluate} ispeziona la matrice di gioco esaminando le righe, le colonne, le diagonali e le antidiagonali al fine di trovare il numero massimo di simboli allineati dal giocatore preso in analisi.
+Tollera fino ad una cella libera di fila nella streak e cambia tale valore grazie a due moltiplicatori che dipendono dal fatto che prima e/o dopo ci sia una cella libera o meno.
+Tali moltiplicatori possono assumere i seguenti valori:
+\begin{itemize}
+	\item 1 se la cella è libera
+	\item 0.7 altrimenti
+\end{itemize}
+Nel caso in cui entrambi i moltiplicatori valgano 0.7 e la lunghezza della streak sia minore di $K$, allora tale streak non viene considerata.
+
+\subsection{timeout}
+per ovviare ai limiti di tempo, all'interno di initeplayer, in base al numero di celle   della matrice di gioco ($M \times N$), assegnamo una profondità massima che abbiamo empiricamente verificato essere la maggiore che non causi timeout e restituisca una mossa in tempi ragionevoli.
+
+verificata empiricamente.
+
+
+
+ andiamo a verificare la dimensione della matrice e forniamo un opportuna profondità massima  
+
+
+\newpage
+
+
+
+
+
+\section{AAAAAAA}
+Abbiamo considerato una suddivisione uniforme dell'intervallo $[0,1]$  con passo \texttt{h} in N punti interni: ${0=x_0<x_1<....<x_N<x_{N+1}=1}$.
+Trattandosi di un problema in forma conservativa abbiamo dovuto modificare soltanto la funzione \texttt{Conv\_Mat}, poiché il metodo alle differenze finite centrali si deve applicare a $(p(x)u(x))'$ e non soltanto alla $u'(x)$.\\
+Per ogni punto $x_i$ della griglia vale dunque la seguente formula
+\begin{equation}
+    (pu)'(x_i)= \frac{(pu)(x_{i+1})-(pu)(x_{i-1})}{2h} 
+\end{equation}
+che porta alla costruzione della matrice di convezione come segue: 
+\begin{multline*}
+\texttt{C = -sparse(2:n,1:n-1, p\_val(1:n-1)/(2*h), n,n)+}\\ 
+\texttt{+sparse(1:n-1,2:n, p\_val(2:n)/(2*h), n,n)}
+\end{multline*}
+Questo si realizza nella funzione \texttt{Conv\_Mat\_cons}, la quale restituisce in output anche gli stessi coefficienti \texttt{C0} e \texttt{C1} della funzione \texttt{Conv\_Mat}.\\
+A questo punto ci sono tutti gli ingredienti per eseguire la funzione \texttt{FD\_Unif\_cons}, che opera come \texttt{FD\_Unif}, e prepara il terreno alla risoluzione del problema che avviene nello script \texttt{main\_FD\_u\_cons}.\\
+Si ottengono dunque i seguenti grafici:
+
+\begin{figure}[h!]
+    \centering
+%    \subfigure[]{\label{}\includegraphics[scale =0.20]{sol_unif.png}}
+    %\hskip1cm
+%    \subfigure[]{\label{}\includegraphics[scale= 0.20]{sol_unif_raff.png}}
+\end{figure}
+
+\subsection{Suddivisione  non uniforme dell'intervallo}
+In questo secondo caso abbiamo modificato opportunamente le funzioni precedenti, al fine di risolvere il problema su una partizione non uniforme del dominio. In particolare abbiamo usato una partizione più fitta laddove la derivata della soluzione analitica era più grande in modulo.
+\noindent
+In prima istanza abbiamo definito il vettore \texttt{h} dei passi non più costanti con il comando \texttt{diff(X)} e gli abbiamo aggiunto due componenti agli estremi, uguali rispettivamente al primo e all'ultimo passo, in modo da poter applicare le formule di approssimazione anche nei punti di frontiera: $\texttt{h = [h(1), h, h(end)]}$.\\
+Posto \texttt{i = 1:N}, una volta applicate le differenze centrali a $(ku')'(x_i)$ e poi a $u'(x_i+ h(i+1)/2)$ e $u'(x_i- h(i)/2)$, si ottiene:
+\begin{multline*}
+    (k(x_i)u'(x_i))' \simeq\\ \simeq \frac{k(x_i+ h(i+1)\slash2)u'(x_i+ h(i+1)\slash2)- k(x_i- h(i)\slash2)u'(x_i- h(i)\slash2) }{(h(i)+h(i+1))\slash 2} \simeq \\
+    \simeq \frac{2}{h(i)+h(i+1)}\Biggl[ k\biggl(x_i+ \frac{h(i+1)}{2}\biggr) \biggl(\frac{u(x_i+ h(i+1))-u(x_i)}{h(i+1)} \biggr)+\\-  k\biggl(x_i- \frac{h(i)}{2}\biggr) \biggl(\frac{u(x_i)-u(x_i-h(i))}{h(i)} \biggr) \Biggr]  = \\
+    = \frac{2}{(h(i)+h(i+1))h(i+1)h(i)}\Biggl[u(x_{i+1})\biggl(h(i) k\biggl(x_i+\frac{h(i+1)}{2}\biggr)\biggr)+ \\
+        + u(x_i)\biggl(-h(i) k\biggl(x_i+\frac{h(i+1)}{2}\biggr) -h(i+1) k\biggl(x_i-\frac{h(i)}{2}\biggr) \biggr) + \\
+        +(u(x_{i-1}))\biggl(h(i+1) k\biggl(x_i-\frac{h(i)}{2}\biggr)\biggr)\Biggr]   
+\end{multline*}
+
+\noindent
+Tale conto è implementato nella funzione \texttt{Diff\_Mat\_NUnif}, che, similmente alla precedente, fornisce in output la matrice di diffusione \texttt{K} e i coefficienti \texttt{K0} e \texttt{K1} necessari per le condizioni al bordo.
+
+\noindent
+Lo stesso procedimento è stato usato per la matrice di convezione: applicando le differenze finite a $(p(x_i)u(x_i))'$, otteniamo
+
+%\begin{multline*}
+%    (p(x_i)u(x_i))'  \simeq \frac{p(x_i+ h(i+1))u(x_i+ h(i+1))- p(x_i- h(i))u(x_i- h(i)) }{(h(i)+h(i+1))}   
+%\end{multline*}
+
+\noindent
+Ciò si trova nella funzione \texttt{Conv\_Mat\_cons\_NUnif}, che restituisce, oltre che la matrice di convezione \texttt{C}, anche i coefficienti \texttt{C0} e \texttt{C1}. \\
+
+
+\noindent A questo punto abbiamo testato lo script \texttt{main\_FD\_Nu\_cons} che propone diverse partizioni non uniformi del dominio e risolve il problema.\\
+Nello specifico la funzione \texttt{dominioNU} fornisce in output un raffinamento sempre più infittito vicino agli estremi, dove la soluzione analitica \texttt{y} varia più rapidamente.
+Tra $0$ e $0.5$, estremante della soluzione analitica, fissata empiricamente la costante reale \texttt{c}, il passo i-esimo viene scelto, a meno di una costante moltiplicativa normalizzante, nel seguente modo:
+\begin{equation*}
+   \texttt{passo(i)=passo(i-1)*(1+c*passo(i-1));}  
+\end{equation*}
+Una volta definita la discretizzazione di $\bigl[0,0.5\bigr]$, per la simmetria della \texttt{y}, si ha anche il raffinamento di $\bigl[0.5, 1\bigr]$.\\
+\noindent Da ciò i due grafici:
+
+%\begin{figure}[h!]
+%    \centering
+%    \subfigure[]{\label{}\includegraphics[scale =0.20]{sol_nunif0.png}}
+    %\hskip1cm
+%    \subfigure[]{\label{}\includegraphics[scale= 0.20]{sol_nunif0_raff.png}}
+%    \label{fig:my_label1}
+%\end{figure}
+
+\section{Risultati}
+Per avere un'idea migliore delle differenze fra le soluzioni trovate abbiamo creato lo script \texttt{main\_confronto}, nel quale, dopo aver generato una partizione non uniforme con \texttt{dominioNU} e una uniforme aventi lo stesso numero di punti, si risolve nuovamente il problema in entrambi i casi e si producono grafici che mostrano contemporaneamente tutte le soluzioni.\\
+
+\newpage
+\subsection{Confronto delle soluzioni} %%% METTICELI NUOVI
+I grafici delle soluzioni sono:\\
+%\begin{figure}[h!]
+%    \centering
+%    \subfigure[]{\label{}\includegraphics[scale =0.20]{c1.png}}
+%    %\hskip1cm
+%    \subfigure[]{\label{}\includegraphics[scale= 0.20]{c2.png}}
+%    \label{fig:my_label3}
+%\end{figure}\\
+
+
+\subsection{Analisi dell'errore e numero di condizionamento}
+
+Come ci si aspetta dalla teoria $($stiamo usando formule alle differenze finite di ordine 2$)$, si può osservare nel grafico $($g$)$ che l'andamento dell'errore in norma infinito nel caso di una partizione uniforme è parallelo a quello di \texttt{$h^2$}. 
+\\
+\noindent
+Lo script produce anche una tabella che mostra come, a parità di numero di punti della partizione, la norma infinito dell'errore sia nel caso non uniforme un ordine di grandezza inferiore rispetto all'altro.
+
+% \begin{figure}[h!]
+%    \centering
+%    \subfigure[]{\label{}\includegraphics[scale =0.20]{c3.png}}
+    %\hskip1cm
+%    \subfigure[]{\label{}\includegraphics[scale= 0.20]{c4.png}}
+%    \label{fig:my_label4}
+%\end{figure}  
+
+\noindent Dalla figura $($h$)$ si evince che l'andamento del numero di condizionamento resta controllato da $n^3$, perciò il problema è ben condizionato.
+
+\section{Conclusioni}
+Il miglioramento ottenuto nel caso non uniforme richiama alla mente quanto accade per problemi che hanno un boundary layer. Anche in quel caso infatti una possibile strategia è quella di raffinare maggiormente il dominio vicino all'estremo interessante.
+
+\subsection{Sistema lineare}
+Per quanto riguarda la risoluzione vera e propria del sistema si potrebbe utilizzare il metodo di Thomas, poiché la matrice A è tridiagonale. Tuttavia, utilizzando la funzione \texttt{Thomas}, implementata nel corso di Laurea Triennale, abbiamo osservato, mediante lo strumento \texttt{tic-toc}, che il processo risulta più veloce con il solutore backslash  $($\texttt{U = A$\backslash$F}$)$.
+Ciò è conseguenza del fatto che la matrice A è somma di matrici costruite utilizzando il comando \texttt{sparse} e di conseguenza il software sceglie a sua volta un algoritmo ottimale, pensato apposta per matrici sparse.
+
+
+\end{document}
