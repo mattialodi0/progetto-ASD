@@ -5,7 +5,7 @@
 
 
 
-\author{Salvatore Lervini, Mattia Lodi, Federico Vallese \\ 0001030390,  0001020617,  0000983811}
+\author{Salvatore Lervini, Mattia Lodi, Federico Vallese \\  0001030390,  0001020617,  0000983811}
 
 \date{Settembre 2022}
 
@@ -49,10 +49,20 @@ I nostri obiettivi principali sono stati:
 	\item una gestione accurata delle tempistiche.
 \end{itemize}
 
+\subsection{Implementazione di Iterative deepening}
+In primis creiamo l'array \textit{BC} chiamando la funzione bestCells.
+Utilizziamo, quindi, due cicli, quello esterno agisce sulla profondità massima, laddove quello interno applica l'algoritmo \textit{AlphaBeta} ad alcuni figli di ogni configurazione riempiendo parallelamente un array di risultati in modo che all'\textit{i}-esimo valore di \textit{BC} corrisponda l'\textit{i}-esimo valore dell'array \textit{results}.
+In caso di possibilità di vittoria immediata si ritorna direttamente la mossa vincente evitando controlli inutili.
+Altrimenti, se il tempo sta finendo, grazie all'uso di iterative deepening, si ritorna la cella migliore trovata al ciclo precedente.
+Una volta riempito l'array di risultati, se il nostro giocatore è primo allora vincerà con $-1$, quindi selezioniamo la cella con valore minore; altrimenti, vincerà con$+1$ e in tal caso andremo quindi a considerare il maggiore di questi.
+
+
 \subsection{Funzione BestCell}
-La funzione best cell riduce il numero di celle da dare in input a iterative deepening considerando le eventuali celle libere adiacenti a quelle marcate negli ultimi 10 turni.
-Ci avvaliamo di un array dinamico per la memorizzazione di queste.
-Se il giocatore di cui sta analizzando il turno si trova ad una mossa dalla vittoria la gioca.
+La funzione \textit{bestCell} riduce il numero di celle da dare in input a \textit{iterative deepening}.
+Ci avvaliamo di un \textit{array dinamico} per la memorizzazione di queste tramite la funzione \textit{findFreeCells}, che considera le eventuali celle libere adiacenti a quelle marcate negli ultimi $10$ turni.
+Nel caso in cui \textit{findFreeCells} non trovi celle se ne considerano 3 prese a caso da \textit{FC}, vettore contenente tutte le celle libere.
+Se il giocatore di cui sta analizzando il turno si trova ad una mossa dalla vittoria la gioca ponendo tale mossa in cima all'array in modo da essere sempre valutata anche in caso di timeout.
+
 
 
 \subsection{evaluation e evaluate}
@@ -61,22 +71,52 @@ Il valore suddetto è ottenuto usando la funzione arcotangente normalizzata poic
 
 \noindent
 \textit{evaluate} ispeziona la matrice di gioco esaminando le righe, le colonne, le diagonali e le antidiagonali al fine di trovare il numero massimo di simboli allineati dal giocatore preso in analisi.
-Tollera fino ad una cella libera di fila nella streak e cambia tale valore grazie a due moltiplicatori che dipendono dal fatto che prima e/o dopo ci sia una cella libera o meno.
+Facciamo ciò avvalendoci di un array dinamico di tipo streak, una nuova classe da noi creata al fine di memorizzare la lunghezza della fila e il valore dei moltiplicatori ad essa associata.
+\textit{Evaluate} tollera fino ad una cella libera di fila nella streak e cambia tale valore grazie a due moltiplicatori che dipendono dal fatto che prima e/o dopo ci sia una cella libera o meno.
+La streak è conclusa quando incontriamo:
+\begin{itemize}
+	\item un muro
+	\item un simbolo avversario
+	\item almeno due celle vuote di fila
+\end{itemize}
+Per l'ultimo caso usiamo un \textit{flag} che assume un valore booleano \textit{true} inizializzato a \textit{false}.
 Tali moltiplicatori possono assumere i seguenti valori:
 \begin{itemize}
-	\item 1 se la cella è libera
-	\item 0.7 altrimenti
+	\item $1$ se la cella è libera
+	\item $0.7$ altrimenti
 \end{itemize}
-Nel caso in cui entrambi i moltiplicatori valgano 0.7 e la lunghezza della streak sia minore di $K$, allora tale streak non viene considerata.
+Nel caso in cui entrambi i moltiplicatori valgano $0.7$ e la lunghezza della streak sia minore di $K$, allora tale streak non viene considerata.
+Quando la lunghezza della streak massima è maggiore o uguale a $K$ e non vi è vittoria allora è certo che siano presenti uno o più celle libere non allineate all'interno. In questo caso, quindi, abbiamo ritenuto opportuno non considerare i suoi moltiplicatori al fine di non ridurlo, poichè tale configurazione è per noi molto vantaggiosa dal momento che per vincere basta riempire tali buchi.
+
+%FOTOOOOOOOOOOOOO ESEMPIIIIIIIIIIIIII
 
 \subsection{timeout}
 per ovviare ai limiti di tempo, all'interno di initeplayer, in base al numero di celle   della matrice di gioco ($M \times N$), assegnamo una profondità massima che abbiamo empiricamente verificato essere la maggiore che non causi timeout e restituisca una mossa in tempi ragionevoli.
 
-verificata empiricamente.
+\subsection{costo computazionale}
+Chiamando la dimensione dell'input $n:=M\times N$ e $d:=max$\_$depth$, il costo computazionale totale dell'algoritmo è
+\[
+O(n^d) + O(n^2) + O(n) + c = O(n^d)
+\]
+infatti le funzioni:
+\begin{itemize}
+	\item \textit{evaluateRows}
+	\item \textit{evaluateCols}
+	\item \textit{evaluateDiags}
+	\item \textit{evaluateAntiDiags}
+\end{itemize}
+costano $O(n)$ per via dei due cicli annidati all'interno dei quali ci sono solo operazioni di costo costante.
+
+\noindent
+La funzione \textit{bestCells} ha, nel caso peggiore, costo $O(n^2)$ per via di un ciclo su tutte le celle libere, a partire da ognuna delle quali è applicata la funzione \textit{isntAlready}, che verifica che tale cella non sia stata già inserita nell'\textit{array}.
+
+\noindent
+Il costo totale è dominato asintoticamente dal costo dell'algoritmo \textit{iterative deepening} che richiama \textit{AlphaBeta} $d$ volte con profondità crescente.
+\[
+O\Bigg(  \sum_{i=1}^d n^i\Bigg)=O(n^d)
+\]
 
 
-
- andiamo a verificare la dimensione della matrice e forniamo un opportuna profondità massima  
 
 
 \newpage
