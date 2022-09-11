@@ -59,14 +59,11 @@ public class ObserverPlayer  implements MNKPlayer {
     private void evaluation(MNKBoard B) {     //verifica solo la sequenza più lunga non se è stata già bloccata o no (futura implementazione)
         int max_p1 = 0;
         int max_p2 = 0;
-
         max_p1 = evaluate(B.B, MNKCellState.P1);
         max_p2 = evaluate(B.B, MNKCellState.P2);
-
         if(max_p1 > max_p2) { System.out.println("p1 is winning " + max_p1 + " a " + max_p2); }
         else if(max_p1 < max_p2) { System.out.println("p2 is winning " + max_p2 + " a " + max_p1); }
         else if(max_p1 == max_p2) { System.out.println("draw"); }
-
     }
 */   
    
@@ -98,6 +95,23 @@ public class ObserverPlayer  implements MNKPlayer {
                             z.m1 = 1;
                             streak_max.set(h, z);
                         }
+                        else{
+                        	Streak z = streak_max.get(h);
+                            z.m1 = 0.7;
+                            streak_max.set(h, z);
+                        }
+                    }
+                    else {
+                    	if(j+1 < N && B[i][j+1] == MNKCellState.FREE) {
+                            Streak z = streak_max.get(h);
+                            z.m2 = 1;
+                            streak_max.set(h, z);
+                        }
+                        else{
+                        	Streak z = streak_max.get(h);
+                            z.m2 = 0.7;
+                            streak_max.set(h, z);
+                        }
                     }
                     Streak z = streak_max.get(h);
                     z.count++;
@@ -106,16 +120,9 @@ public class ObserverPlayer  implements MNKPlayer {
                 else if(B[i][j] == MNKCellState.FREE) {
                     if(!flag){
                         flag = true;
-                        if(streak_max.get(h).count > 0) {
-                            Streak z = streak_max.get(h);
-                            z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
-                        if(j+1 < N && B[i][j+1] == state) {
-                            Streak z = streak_max.get(h);
-                            z.hole = true;
-                            streak_max.set(h, z);
-                        }
+//                      if(j+1 < N && B[i][j+1] == state) {
+//                      	hole++;
+//                      }    
                     } 
                     else {
                         if(streak_max.get(h).count > 0) {
@@ -129,11 +136,6 @@ public class ObserverPlayer  implements MNKPlayer {
                     if(flag) 
                         flag = false;
                     if(streak_max.get(h).count > 0) {
-                        if(j+1 < N && B[i][j+1] == MNKCellState.FREE) {
-                            Streak z = streak_max.get(h);
-                            z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
                         Streak w = new Streak();
                         streak_max.add(w);
                         h += 1;
@@ -149,7 +151,7 @@ public class ObserverPlayer  implements MNKPlayer {
 
         double max = 0;
         for(int k = 0; k < streak_max.size(); k++){
-            if(streak_max.get(k).count >= K)
+            if(streak_max.get(k).count >= K)//K-streak_max.get(k).hole
                 max = streak_max.get(k).count;
             else if(streak_max.get(k).m1 != 0.7 || streak_max.get(k).m2 != 0.7) {
                 if(max < streak_max.get(k).count*streak_max.get(k).m1*streak_max.get(k).m2) 
@@ -171,11 +173,28 @@ public class ObserverPlayer  implements MNKPlayer {
             for(int i=0; i < M; i++) {
                 if(B[i][j] == state) {
                     if(flag) 
-                    flag = false;
+                    	flag = false;
                     if(streak_max.get(h).count == 0) {
                         if(i-1 >= 0 && B[i-1][j] == MNKCellState.FREE) {
                             Streak z = streak_max.get(h);
                             z.m1 = 1;
+                            streak_max.set(h, z);
+                        }
+                        else {
+                        	Streak z = streak_max.get(h);
+                            z.m1 = 0.7;
+                            streak_max.set(h, z);
+                        }
+                    }
+                    else {
+                    	if(i+1 < M && B[i+1][j] == MNKCellState.FREE) {
+                            Streak z = streak_max.get(h);
+                            z.m2 = 1;
+                            streak_max.set(h, z);
+                        }
+                        else {
+                        	Streak z = streak_max.get(h);
+                            z.m2 = 0.7;
                             streak_max.set(h, z);
                         }
                     }
@@ -186,16 +205,9 @@ public class ObserverPlayer  implements MNKPlayer {
                 else if(B[i][j] == MNKCellState.FREE) {
                     if(!flag){
                         flag = true;
-                        if(streak_max.get(h).count > 0) {
-                            Streak z = streak_max.get(h);
-                            z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
-                        if(i+1 < M && B[i+1][j] == state) {
-                            Streak z = streak_max.get(h);
-                            z.hole = true;
-                            streak_max.set(h, z);
-                        }
+//                        if(i+1 < M && B[i+1][j] == state) {
+//                            hole++;
+//                        }
                     } 
                     else {
                         if(streak_max.get(h).count > 0) {
@@ -209,11 +221,6 @@ public class ObserverPlayer  implements MNKPlayer {
                     if(flag) 
                         flag = false;
                     if(streak_max.get(h).count > 0) {
-                        if(i+1 < M && B[i+1][j] == MNKCellState.FREE) {
-                            Streak z = streak_max.get(h);
-                            z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
                         Streak w = new Streak();
                         streak_max.add(w);
                         h += 1;
@@ -229,7 +236,7 @@ public class ObserverPlayer  implements MNKPlayer {
     
         double max = 0;
         for(int k = 0; k < streak_max.size(); k++){
-            if(streak_max.get(k).count >= K)
+            if(streak_max.get(k).count >= K)//K-streak_max.get(k).hole
                 max = streak_max.get(k).count;
             else if(streak_max.get(k).m1 != 0.7 || streak_max.get(k).m2 != 0.7) {
                 if(max < streak_max.get(k).count*streak_max.get(k).m1*streak_max.get(k).m2) 
@@ -252,13 +259,31 @@ public class ObserverPlayer  implements MNKPlayer {
             for(int l=0; (l<M && j+l<N); l++) {
                 if(B[l][j+l] == state) {
                     if(flag) 
-                    flag = false;
+                    	flag = false;
                     if(streak_max.get(h).count == 0) {
                         if((l-1>=0 && j+l-1>=0) && B[l-1][j+l-1] == MNKCellState.FREE) {
                             Streak z = streak_max.get(h);
                             z.m1 = 1;
                             streak_max.set(h, z);
                         }
+                        else {
+                        	Streak z = streak_max.get(h);
+                            z.m1 = 0.7;
+                            streak_max.set(h, z);
+                        }
+                    }
+                    else {
+                    	if((l+1<M && j+l+1<N) && B[l+1][j+l+1] == MNKCellState.FREE) {
+                            Streak z = streak_max.get(h);
+                            z.m2 = 1;
+                            streak_max.set(h, z);
+                        }
+                    	else {
+                    		Streak z = streak_max.get(h);
+                            z.m2 = 0.7;
+                            streak_max.set(h, z);
+                    	}
+                    	
                     }
                     Streak z = streak_max.get(h);
                     z.count++;
@@ -267,16 +292,9 @@ public class ObserverPlayer  implements MNKPlayer {
                 else if(B[l][j+l] == MNKCellState.FREE) {
                     if(!flag){
                         flag = true;
-                        if(streak_max.get(h).count > 0) {
-                            Streak z = streak_max.get(h);
-                            z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
-                        if((l+1<M && j+l+1<N) && B[l+1][j+l+1] == state) {
-                            Streak z = streak_max.get(h);
-                            z.hole = true;
-                            streak_max.set(h, z);
-                        }
+//                        if((l+1<M && j+l+1<N) && B[l+1][j+l+1] == state) {
+//                            hole++;
+//                        }
                     } 
                     else {
                         if(streak_max.get(h).count > 0) {
@@ -290,11 +308,6 @@ public class ObserverPlayer  implements MNKPlayer {
                     if(flag) 
                         flag = false;
                     if(streak_max.get(h).count > 0) {
-                        if((l+1<M && j+l+1<N) && B[l+1][j+l+1] == MNKCellState.FREE) {
-                            Streak z = streak_max.get(h);
-                            z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
                         Streak w = new Streak();
                         streak_max.add(w);
                         h += 1;
@@ -313,13 +326,30 @@ public class ObserverPlayer  implements MNKPlayer {
             for(int l=0; (l<N && i+l<M); l++) {
                 if(B[i+l][l] == state) {
                     if(flag) 
-                    flag = false;
+                    	flag = false;
                     if(streak_max.get(h).count == 0) {
                         if((i+l-1>=0 && l-1>=0) && B[i+l-1][l-1] == MNKCellState.FREE) {
                             Streak z = streak_max.get(h);
                             z.m1 = 1;
                             streak_max.set(h, z);
                         }
+                        else {
+                        	Streak z = streak_max.get(h);
+                            z.m1 = 0.7;
+                            streak_max.set(h, z);
+                        }
+                    }
+                    else {
+                    	if((i+l+1<M && l+1<N) && B[i+l+1][l+1] == MNKCellState.FREE) {
+                            Streak z = streak_max.get(h);
+                            z.m2 = 1;
+                            streak_max.set(h, z);
+                        }
+                    	else {
+                    		Streak z = streak_max.get(h);
+                            z.m2 = 0.7;
+                            streak_max.set(h, z);
+                    	}
                     }
                     Streak z = streak_max.get(h);
                     z.count++;
@@ -328,16 +358,9 @@ public class ObserverPlayer  implements MNKPlayer {
                 else if(B[i+l][l] == MNKCellState.FREE) {
                     if(!flag){
                         flag = true;
-                        if(streak_max.get(h).count > 0) {
-                            Streak z = streak_max.get(h);
-                            z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
-                        if((i+l+1<M && l+1<N) && B[i+l+1][l+1] == state) {
-                            Streak z = streak_max.get(h);
-                            z.hole = true;
-                            streak_max.set(h, z);
-                        }
+//                        if((i+l+1<M && l+1<N) && B[i+l+1][l+1] == state) {
+//                            hole++;
+//                        }
                     } 
                     else {
                         if(streak_max.get(h).count > 0) {
@@ -351,11 +374,6 @@ public class ObserverPlayer  implements MNKPlayer {
                     if(flag) 
                         flag = false;
                     if(streak_max.get(h).count > 0) {
-                        if((i+l+1<M && l+1<N) && B[i+l+1][l+1] == MNKCellState.FREE) {
-                            Streak z = streak_max.get(h);
-                            z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
                         Streak w = new Streak();
                         streak_max.add(w);
                         h += 1;
@@ -371,7 +389,7 @@ public class ObserverPlayer  implements MNKPlayer {
 
         double max = 0;
         for(int k = 0; k < streak_max.size(); k++){
-            if(streak_max.get(k).count >= K)
+            if(streak_max.get(k).count >= K)//K-streak_max.get(k).hole
                 max = streak_max.get(k).count;
             else if(streak_max.get(k).m1 != 0.7 || streak_max.get(k).m2 != 0.7) {
                 if(max < streak_max.get(k).count*streak_max.get(k).m1*streak_max.get(k).m2) 
@@ -394,13 +412,30 @@ public class ObserverPlayer  implements MNKPlayer {
             for(int l=0; (l < M && j-l > 0); l++) {
                 if(B[l][j-l-1] == state) {
                     if(flag) 
-                    flag = false;
+                    	flag = false;
                     if(streak_max.get(h).count == 0) {
                         if((l-1>=0 && j-l<N) && B[l-1][j-l] == MNKCellState.FREE) {
                             Streak z = streak_max.get(h);
                             z.m1 = 1;
                             streak_max.set(h, z);
                         }
+                        else {
+                        	Streak z = streak_max.get(h);
+                            z.m1 = 0.7;
+                            streak_max.set(h, z);
+                        }
+                    }
+                    else {
+                    	if((l+1<M && j-l-2>0) && B[l+1][j-l-2] == MNKCellState.FREE) {
+                            Streak z = streak_max.get(h);
+                            z.m2 = 1;
+                            streak_max.set(h, z);
+                        }
+                    	else {
+                    		Streak z = streak_max.get(h);
+                            z.m2 = 0.7;
+                            streak_max.set(h, z);
+                    	}
                     }
                     Streak z = streak_max.get(h);
                     z.count++;
@@ -409,16 +444,9 @@ public class ObserverPlayer  implements MNKPlayer {
                 else if(B[l][j-l-1] == MNKCellState.FREE) {
                     if(!flag){
                         flag = true;
-                        if(streak_max.get(h).count > 0) {
-                            Streak z = streak_max.get(h);
-                            z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
-                        if((l+1<M && j-l-2>0) && B[l+1][j-l-2] == state) {
-                            Streak z = streak_max.get(h);
-                            z.hole = true;
-                            streak_max.set(h, z);
-                        }
+//                        if((l+1<M && j-l-2>0) && B[l+1][j-l-2] == state) {
+//                            hole++;
+//                        }
                     } 
                     else {
                         if(streak_max.get(h).count > 0) {
@@ -432,11 +460,6 @@ public class ObserverPlayer  implements MNKPlayer {
                     if(flag) 
                         flag = false;
                     if(streak_max.get(h).count > 0) {
-                        if((l+1<M && j-l-2>0) && B[l+1][j-l-2] == MNKCellState.FREE) {
-                            Streak z = streak_max.get(h);
-                            z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
                         Streak w = new Streak();
                         streak_max.add(w);
                         h += 1;
@@ -455,13 +478,30 @@ public class ObserverPlayer  implements MNKPlayer {
             for(int l=0; (l+i < M && N-l > 0); l++) {
                 if(B[i+l][N-l-1] == state) {
                     if(flag) 
-                    flag = false;
+                    	flag = false;
                     if(streak_max.get(h).count == 0) {
                         if((i+l-1>=0 && N-l<N) && B[i+l-1][N-l] == MNKCellState.FREE) {
                             Streak z = streak_max.get(h);
                             z.m1 = 1;
                             streak_max.set(h, z);
                         }
+                        else {
+                        	Streak z = streak_max.get(h);
+                            z.m1 = 0.7;
+                            streak_max.set(h, z);
+                        }
+                    }
+                    else {
+                    	if((i+l+1<M && N-l-2>=0) && B[i+l+1][N-l-2] == MNKCellState.FREE) {
+                            Streak z = streak_max.get(h);
+                            z.m2 = 1;
+                            streak_max.set(h, z);
+                        }
+                    	else {
+                    		Streak z = streak_max.get(h);
+                            z.m2 = 0.7;
+                            streak_max.set(h, z);
+                    	}
                     }
                     Streak z = streak_max.get(h);
                     z.count++;
@@ -470,16 +510,9 @@ public class ObserverPlayer  implements MNKPlayer {
                 else if(B[i+l][N-l-1] == MNKCellState.FREE) {
                     if(!flag){
                         flag = true;
-                        if(streak_max.get(h).count > 0) {
-                            Streak z = streak_max.get(h);
-                            z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
-                        if((i+l+1<M && N-l-2>=0) && B[i+l+1][N-l-2] == state) {
-                            Streak z = streak_max.get(h);
-                            z.hole = true;
-                            streak_max.set(h, z);
-                        }
+//                        if((i+l+1<M && N-l-2>=0) && B[i+l+1][N-l-2] == MNKCellState.FREE) {
+//                            hole++;
+//                        }
                     } 
                     else {
                         if(streak_max.get(h).count > 0) {
@@ -493,11 +526,6 @@ public class ObserverPlayer  implements MNKPlayer {
                     if(flag) 
                         flag = false;
                     if(streak_max.get(h).count > 0) {
-                        if((i+l+1<M && N-l-2>=0) && B[i+l+1][N-l-2] == MNKCellState.FREE) {
-                            Streak z = streak_max.get(h);
-                            z.m2 = 1;
-                            streak_max.set(h, z);
-                        }
                         Streak w = new Streak();
                         streak_max.add(w);
                         h += 1;
@@ -513,7 +541,7 @@ public class ObserverPlayer  implements MNKPlayer {
 
         double max = 0;
         for(int k = 0; k < streak_max.size(); k++){
-            if(streak_max.get(k).count >= K)
+            if(streak_max.get(k).count >= K)//K-streak_max.get(k).hole
                 max = streak_max.get(k).count;
             else if(streak_max.get(k).m1 != 0.7 || streak_max.get(k).m2 != 0.7) {
                 if(max < streak_max.get(k).count*streak_max.get(k).m1*streak_max.get(k).m2) 
@@ -522,5 +550,6 @@ public class ObserverPlayer  implements MNKPlayer {
         }
         return max;
     }
-
 }
+
+    
