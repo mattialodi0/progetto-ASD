@@ -92,7 +92,7 @@ public class CompetitivePlayer1  implements MNKPlayer {
                 results[j] = AlphaBeta(B, first, min_a, max_b, i);
                 B.unmarkCell();
 
-                if((results[j] == (first ? -1 : 1))) {  	//caso di vittoria immediata, 
+                if((results[j] == (first ? -1 : 1))) {  	//caso di vittoria immediata
                     B.markCell(BC.get(j).i, BC.get(j).j);                                                               
                     return BC.get(j);
                 }
@@ -157,7 +157,7 @@ public class CompetitivePlayer1  implements MNKPlayer {
         else if(depth == 0) {
             eval = evaluation(B);
         }
-        else if(first_player) {     //B.currentPlayer()==0  //first_player
+        else if(first_player) {
             eval = -1000;
 			ArrayList<MNKCell> BC = bestCells(B);
             //va per ricorsione
