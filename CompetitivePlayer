@@ -41,17 +41,14 @@ public class CompetitivePlayer  implements MNKPlayer {
         timeout = cost + (9*49.0)/cells_num;     //assumendo che il minimo di M*N sia 3*3
         
 		//controllo iterazioni max
-        max_depth = 5;        
+        max_depth = 4;        
 		if(cells_num <= 12) max_depth = cells_num;
-		//else if(cells_num <= 14)  max_depth = 10;	
-		//else if(cells_num <= 18)  max_depth = 9;	
-		//else if(cells_num <= 20)  max_depth = 8;
 		else if(cells_num <= 20)  max_depth = 7;
 		else if(cells_num <= 30)  max_depth = 6;
 		else if(cells_num <= 50)  max_depth = 5;
 		else if(cells_num <= 600)  max_depth = 4;
-		else if(cells_num <= 3000)  max_depth = 3;
-		else if(cells_num > 3000)  max_depth = 2;
+		else if(cells_num <= 2000)  max_depth = 3;
+		else if(cells_num > 2000)  max_depth = 2;
 	}
 
     public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
@@ -80,6 +77,8 @@ public class CompetitivePlayer  implements MNKPlayer {
         final double min_a = -1.0;
         final double max_b = 1.0;
         int index = 0;
+        double best_prec = 0;
+        int prec_index = 0;
         ArrayList<MNKCell> BC = bestCells(B);
 
         for(int i=0; i < max_depth; i++) {
@@ -98,8 +97,6 @@ public class CompetitivePlayer  implements MNKPlayer {
                     return BC.get(j);
                 }
 			    if(timeIsOut())  {
-                    //B.markCell(BC.get(index).i, BC.get(index).j);
-                    //return BC.get(index);
                     break;
                 }
             }
@@ -111,6 +108,10 @@ public class CompetitivePlayer  implements MNKPlayer {
                       index = j;
                     }
                 }
+                if(best_prec < min)     //caso di timeout
+                    index = prec_index;
+                best_prec = min;
+                prec_index = index;
             }
             else {
                 
@@ -121,6 +122,10 @@ public class CompetitivePlayer  implements MNKPlayer {
                       index = j;
                     }
                 }
+                if(best_prec > max)     //caso di timeout
+                    index = prec_index;
+                best_prec = max;
+                prec_index = index;
             }
         }
         
@@ -152,7 +157,7 @@ public class CompetitivePlayer  implements MNKPlayer {
         else if(depth == 0) {
             eval = evaluation(B);
         }
-        else if(first_player) {     //B.currentPlayer()==0  //first_player
+        else if(first_player) {
             eval = -1000;
 			ArrayList<MNKCell> BC = bestCells(B);
             //va per ricorsione
@@ -200,602 +205,7 @@ public class CompetitivePlayer  implements MNKPlayer {
         return (Math.atan(max_p2) - Math.atan(max_p1)) / (Math.PI / 2);  //funzione arcotangente
     }
    
-    //considera anche se è stata bloccata o meno
-    private double evaluate0(MNKCellState[][] B, MNKCellState state) {
-        double u_max = 0;
-        double u = 0;
-        double m1=1.0;
-        double m2=1.0;
-        double p=0.75;
 
-        //controllo delle colonne
-        for(int k=0; k < N; k++) {
-            for(int h=0; h < M; h++) {
-            	if (h==0) { //ho appena iniziato a contare
-            		m1=p;
-            	}
-            	else {
-            		if(u==0 && B[h-1][k] == MNKCellState.FREE) {
-            			m1=1;
-            		}
-            		else if(u==0){
-            			m1=p;
-            		}
-            	}
-            	if (h==M-1) { //ho appena finito di contare
-            		m2=p;
-            	}
-            	else {
-            		if(u!=0 && B[h+1][k] == MNKCellState.FREE) {
-                		m2=1;
-            		}
-            		else if(u!=0) {
-            			m2=p;
-            		}
-            	}
-                if(B[h][k] == state) {
-                    u++;
-                    if (m1!=p || m2!=p) {
-                    	u_max = Math.max(u*m1*m2, u_max);
-                    }
-                }
-                else {
-                    u = 0.0;
-                }
-            }
-            u = 0.0;
-        }
-
-      //controllo delle righe
-        for(int k=0; k < M; k++) {
-            for(int h=0; h < N; h++) {
-            	
-            	if (h==0) { //ho appena iniziato a contare
-            		m1=p;
-            	}
-            	else {
-            		if(u==0 && B[k][h-1] == MNKCellState.FREE) {
-            			m1=1;
-            		}
-            		else if(u==0) {
-            			m1=p;
-            		}
-            	}
-            	if (h==N-1) { //ho appena finito di contare
-            		m2=p;
-            	}
-            	else {
-            		if(u!=0 && B[k][h+1] == MNKCellState.FREE) {
-                		m2=1;
-            		}
-            		else if(u!=0){
-            			m2=p;
-            		}
-            	}
-            	
-                if(B[k][h] == state) {
-                    u++;
-                    if (m1!=p || m2!=p) {
-                    	u_max = Math.max(u*m1*m2, u_max);
-                    	}
-                   
-                    }
-                else {
-                    u = 0;
-                }
-            }
-            u = 0;
-        }
-            
-     // CONTROLLO DIAGONALE 
-     		for (int j = 0; j<N; j++) { // MATRICE TRIANGOLARE SUPERIORE
-     			int l = 0;
-     			while (l<M && j+l<N) {
-     				if (l==0) { //ho appena iniziato a contare
-     					u = 0;
-     					m1 = p;
-     				}
-     				else {
-     					if (u==0 && B[l-1][j+l-1] == MNKCellState.FREE) {
-     						m1=1;
-     					}
-     					else if(u==0) {
-     						m1=p;
-     					}
-     				}
-     				if (l==M-1|| j+l==N-1) {//ho appena finito di contare
-     					m2=p;
-     				}
-     				else {
-            			if(u!=0 && B[l+1][j+l+1] == MNKCellState.FREE) { 
-            				m2=1;
-            			}
-            			else if(u!=0){
-            				m2=p;
-            			}
-            		}
-     				
-     				if (B[l][j+l] == state) {
-     					u++;
-     					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-     				}
-     				else {
-     					u=0;
-     				}
-     				l++;
-     			}
-     		}
-     		for (int i = 1; i<M; i++) { // MATRICE TRIANGOLARE INFERIORE
-    			int l=0;
-    			while (l<N && i+l<M) {
-    				if (l==0) { //ho appena iniziato a contare
-    					u=0;
-    					m1 = p;
-    				}
-    				else {
-    					if (u==0 && B[i+l-1][l-1] == MNKCellState.FREE) {
-    						m1=1;
-    					}
-    					else if (u==0) {
-    						m1=p;
-    					}
-    				}
-    				if (i+l == M-1 || l == N-1) { //ho appena finito di contare
-    					m2=p;
-    				}
-    				else {
-    					if(u!=0 && B[i+l+1][l+1] == MNKCellState.FREE) {
-    						m2=1;
-    					}
-    					else if (u!=0) {
-    						m2=p;
-    					}
-    				}
-    				
-    				
-    				if (B[i+l][l] == state) {
-    					u++;
-    					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-    				}
-    				else {
-    					u=0;
-    				}
-    				l++;
-    			}
-    		}
-	
-     	// CONTROLLO ANTI-DIAGONALE
-    		for (int j = N; j>0; j--) { // MATRICE TRIANGOLARE SUPERIORE (ANTI)
-    			int l = 0;
-    			while (l<M && j-l>0) {
-    				if (l==0) { //ho appena iniziato a contare
-    					u=0;
-    					m1=p;
-    				}
-    				else {
-    					if (u==0 && B[l-1][j-l] == MNKCellState.FREE) {
-    						m1=1;
-    					}
-    					else if (u==0) {
-    						m1=p;
-    					}
-    				}
-    				if (l==M-1||j-l-1==0) { //ho appena finito di contare
-    					m2=p;
-    				}
-    				else {
-    					if (u!=0 && B[l+1][j-l-2] == MNKCellState.FREE) {
-    						m2=1;
-    					}
-    					else if(u!=0) {
-    						m2=p;
-    					}
-    				}
-    				
-    				if (B[l][j-l-1] == state) {
-    					u++;
-    					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-    				}
-    				else {
-    					u=0;
-    				}
-    				l++;
-    			}
-    		}
-    		for (int i = 1; i<M; i++) { // MATRICE TRIANGOLARE INFERIORE (ANTI)
-    			int l = 0;
-    			while (l+i<M && N-l>0) {
-    				if (l==0) { //ho appena iniziato a contare
-    					u = 0;
-    					m1=p;
-    				}
-    				else {
-    					if (u==0 && B[i+l-1][N-l] == MNKCellState.FREE) {
-    						m1=1;
-    					}
-    					else if (u==0) {
-    						m1=p;
-    					}
-    				}
-    				if(i+l==M-1|| N-l-1==0) { //ho appena finito di contare
-    					m2=p;
-    				}
-    				else {
-    					if(u!=0 && B[i+l+1][N-l-2] == MNKCellState.FREE) {
-    						m2=1;
-    					}
-    					else if (u!=0) {
-    						m2=p;
-    					}
-    				}
-    				
-    				
-    				if (B[i+l][N-l-1] == state) {
-    					u++;
-    					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-    				}
-    				else {
-    					u=0;
-    				}
-    				l++;
-    			}
-    		}
-        
-
-        return u_max;
-    }
-
-    //tiene conto anche dei buchi
-	private double evaluate1(MNKCellState[][] B, MNKCellState state) {
-        double u_max = 0;
-        double u = 0;
-        double m1=1.0;
-        double m2=1.0;
-        double p=0.75;
-
-        //controllo delle colonne
-        for(int k=0; k < N; k++) {
-            for(int h=0; h < M; h++) {
-            	if (h==0) { //ho appena iniziato a contare
-            		m1=p;
-            	}
-            	else {
-            		if(u==0 && B[h-1][k] == MNKCellState.FREE) {
-            			m1=1;
-            		}
-            		else if(u==0){
-            			m1=p;
-            		}
-            	}
-            	if (h==M-1) { //ho appena finito di contare
-            		m2=p;
-            	}
-            	else {
-            		if(u!=0 && B[h+1][k] == MNKCellState.FREE) {
-                		m2=1;
-            		}
-            		else if(u!=0) {
-            			m2=p;
-            		}
-            	}
-                if(B[h][k] == state) {
-                    u++;
-                    if (m1!=p || m2!=p) {
-                    	u_max = Math.max(u*m1*m2, u_max);
-                    }
-                }
-              
-                else if(u==0 && B[h][k] == MNKCellState.FREE && h-1>=0 && B[h-1][k] == state) {
-                	u++;
-                	if (m1!=p || m2!=p) {
-                    	u_max = Math.max(u*m1*m2, u_max);
-                    }
-                }
-                
-                else if(u!=0 && B[h][k] == MNKCellState.FREE && h+1<M && B[h+1][k] == state) {
-                	u++;
-                	if (m1!=p || m2!=p) {
-                    	u_max = Math.max(u*m1*m2, u_max);
-                    }
-                }
-                
-                else {
-                    u = 0.0;
-                }
-            }
-            u = 0.0;
-        }
-
-      //controllo delle righe
-        for(int k=0; k < M; k++) {
-            for(int h=0; h < N; h++) {
-            	
-            	if (h==0) { //ho appena iniziato a contare
-            		m1=p;
-            	}
-            	else {
-            		if(u==0 && B[k][h-1] == MNKCellState.FREE) {
-            			m1=1;
-            		}
-            		else if(u==0) {
-            			m1=p;
-            		}
-            	}
-            	if (h==N-1) { //ho appena finito di contare
-            		m2=p;
-            	}
-            	else {
-            		if(u!=0 && B[k][h+1] == MNKCellState.FREE) {
-                		m2=1;
-            		}
-            		else if(u!=0){
-            			m2=p;
-            		}
-            	}
-            	
-                if(B[k][h] == state) {
-                    u++;
-                    if (m1!=p || m2!=p) {
-                    	u_max = Math.max(u*m1*m2, u_max);
-                    	}
-                    }
-                
-                else if(u==0 && B[k][h] == MNKCellState.FREE && h-1>=0 && B[k][h-1] == state) {
-                	u++;
-                	if (m1!=p || m2!=p) {
-                    	u_max = Math.max(u*m1*m2, u_max);
-                    }	
-                }
-                
-                else if(u!=0 && B[k][h] == MNKCellState.FREE && h+1<N && B[k][h+1] == state) {
-                	u++;
-                	if (m1!=p || m2!=p) {
-                    	u_max = Math.max(u*m1*m2, u_max);
-                    }	
-                }
-                
-                
-                else {
-                    u = 0;
-                }
-            }
-            u = 0;
-        }
-            
-     // CONTROLLO DIAGONALE 
-     		for (int j = 0; j<N; j++) { // MATRICE TRIANGOLARE SUPERIORE
-     			int l = 0;
-     			while (l<M && j+l<N) {
-     				if (l==0) { //ho appena iniziato a contare
-     					u = 0;
-     					m1 = p;
-     				}
-     				else {
-     					if (u==0 && B[l-1][j+l-1] == MNKCellState.FREE) {
-     						m1=1;
-     					}
-     					else if(u==0) {
-     						m1=p;
-     					}
-     				}
-     				if (l==M-1|| j+l==N-1) {//ho appena finito di contare
-     					m2=p;
-     				}
-     				else {
-            			if(u!=0 && B[l+1][j+l+1] == MNKCellState.FREE) { 
-            				m2=1;
-            			}
-            			else if(u!=0){
-            				m2=p;
-            			}
-            		}
-     				
-     				if (B[l][j+l] == state) {
-     					u++;
-     					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-     				}
-     				
-     				else if(u==0 && B[l][j+l] == MNKCellState.FREE && l>0 && j-l>0 && B[l-1][j+l-1] == state) {
-     					u++;
-     					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-     				}
-     				
-     				else if(u!=0 && B[l][j+l] == MNKCellState.FREE && l+1<M && j+l+1<N && B[l+1][j+l+1] == state) {
-     					u++;
-     					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-     				}
-     				
-     				else {
-     					u=0;
-     				}
-     				l++;
-     			}
-     		}
-     		for (int i = 1; i<M; i++) { // MATRICE TRIANGOLARE INFERIORE
-    			int l=0;
-    			while (l<N && i+l<M) {
-    				if (l==0) { //ho appena iniziato a contare
-    					u=0;
-    					m1 = p;
-    				}
-    				else {
-    					if (u==0 && B[i+l-1][l-1] == MNKCellState.FREE) {
-    						m1=1;
-    					}
-    					else if (u==0) {
-    						m1=p;
-    					}
-    				}
-    				if (i+l == M-1 || l == N-1) { //ho appena finito di contare
-    					m2=p;
-    				}
-    				else {
-    					if(u!=0 && B[i+l+1][l+1] == MNKCellState.FREE) {
-    						m2=1;
-    					}
-    					else if (u!=0) {
-    						m2=p;
-    					}
-    				}
-    				
-    				
-    				if (B[i+l][l] == state) {
-    					u++;
-    					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-    				}
-    				
-    				else if(u==0 && B[i+l][l] == MNKCellState.FREE && i+l>0 && l>0 && B[i+l-1][l-1] == state) {
-     					u++;
-     					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-     				}
-     				
-     				else if(u!=0 && B[i+l][l] == MNKCellState.FREE && i+l+1<M && l+1<N && B[i+l+1][l+1] == state) {
-     					u++;
-     					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-     				}
-    				
-    				else {
-    					u=0;
-    				}
-    				l++;
-    			}
-    		}
-	
-     	// CONTROLLO ANTI-DIAGONALE
-    		for (int j = N; j>0; j--) { // MATRICE TRIANGOLARE SUPERIORE (ANTI)
-    			int l = 0;
-    			while (l<M && j-l>0) {
-    				if (l==0) { //ho appena iniziato a contare
-    					u=0;
-    					m1=p;
-    				}
-    				else {
-    					if (u==0 && B[l-1][j-l] == MNKCellState.FREE) {
-    						m1=1;
-    					}
-    					else if (u==0) {
-    						m1=p;
-    					}
-    				}
-    				if (l==M-1||j-l-1==0) { //ho appena finito di contare
-    					m2=p;
-    				}
-    				else {
-    					if (u!=0 && B[l+1][j-l-2] == MNKCellState.FREE) {
-    						m2=1;
-    					}
-    					else if(u!=0) {
-    						m2=p;
-    					}
-    				}
-    				
-    				if (B[l][j-l-1] == state) {
-    					u++;
-    					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-    				}
-    				
-    				else if(u==0 && B[l][j-l-1] == MNKCellState.FREE && l>0 && j-l<N && B[l-1][j-l] == state) {
-     					u++;
-     					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-     				}
-     				
-     				else if(u!=0 && B[l][j-l-1] == MNKCellState.FREE && l+1<M && j-l-2>0 && B[l+1][j-l-2] == state) {
-     					u++;
-     					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-     				}
-    				
-    				else {
-    					u=0;
-    				}
-    				l++;
-    			}
-    		}
-    		for (int i = 1; i<M; i++) { // MATRICE TRIANGOLARE INFERIORE (ANTI)
-    			int l = 0;
-    			while (l+i<M && N-l>0) {
-    				if (l==0) { //ho appena iniziato a contare
-    					u = 0;
-    					m1=p;
-    				}
-    				else {
-    					if (u==0 && B[i+l-1][N-l] == MNKCellState.FREE) {
-    						m1=1;
-    					}
-    					else if (u==0) {
-    						m1=p;
-    					}
-    				}
-    				if(i+l==M-1|| N-l-1==0) { //ho appena finito di contare
-    					m2=p;
-    				}
-    				else {
-    					if(u!=0 && B[i+l+1][N-l-2] == MNKCellState.FREE) {
-    						m2=1;
-    					}
-    					else if (u!=0) {
-    						m2=p;
-    					}
-    				}
-    				
-    				
-    				if (B[i+l][N-l-1] == state) {
-    					u++;
-    					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-    				}
-    				
-    				else if(u==0 && B[i+l][N-l-1] == MNKCellState.FREE && i+l>0 && N-l<N && B[i+l-1][N-l] == state) {
-     					u++;
-     					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-     				}
-     				
-     				else if(u!=0 && B[i+l][N-l-1] == MNKCellState.FREE && i+l+1<M && N-l-2>=0 && B[i+l+1][N-l-2] == state) {
-     					u++;
-     					if (m1!=p || m2!=p) {
-                        	u_max = Math.max(u*m1*m2, u_max);
-                        	}
-     				}
-    				
-    				else {
-    					u=0;
-    				}
-    				l++;
-    			}
-    		}
-        
-
-        return u_max;
-    }
-    
 	private double evaluate(MNKCellState[][] B, MNKCellState state) {
         double max_rows = evaluateRows(B, state);
         double max_cols = evaluateCols(B, state);
